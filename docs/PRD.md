@@ -51,6 +51,9 @@ Escribirlos es lo que hace que el proyecto entre en un fin de semana:
 - No hay cuentas, pagos, certificados, quizzes, rachas ni gamificación.
 - No sincroniza con la nube: el progreso vive en un SQLite local.
 - No es una app de escritorio empaquetada (sin Electron, sin instalador).
+- No se integra con Notion ni con ninguna API externa: el puente es un archivo Markdown.
+- No hay rachas, logros ni estadísticas de tiempo estudiado. Son lindos en la demo,
+  irrelevantes a los tres días, y cobran mantenimiento para siempre.
 
 ## 6. Alcance del MVP (v1 — el fin de semana)
 
@@ -74,6 +77,18 @@ Catorce funciones. Las diez primeras salieron de la lista original; las cuatro
 | 13 | Agregar otra carpeta de biblioteca y reescanear | Los cursos no viven todos bajo la misma raíz |
 | 14 | Marcar vista a mano y botón "Siguiente clase" | El 90% no alcanza para los .mkv, y evita volver al índice entre clases |
 
+### Detalles del reproductor — 1 h 30 en total
+
+Cuatro micro-funciones que no cambian lo que la app hace, pero sí lo que se siente
+al usarla. Van juntas porque comparten el mismo código y ninguna pasa de media hora:
+
+| # | Detalle | Por qué |
+|---|---------|---------|
+| 15 | **Atajos de teclado**: espacio, ←/→ 5 s, J/L 10 s, N siguiente, M marcar vista | Es la diferencia entre un reproductor y una página web. Si solo entra una de las cuatro, que sea esta |
+| 16 | **Autoplay de la siguiente clase**, con contador de 5 s cancelable | Cada vuelta al índice es una oportunidad de abandonar. Esto es lo que hace que veas tres clases seguidas |
+| 17 | **Reanudar 5 segundos antes** de donde quedaste | Recuperás el contexto en vez de caer en mitad de una frase. Truco viejo de las apps de podcast |
+| 18 | **Recordar la velocidad por curso** | Ponés 1.75x en un curso denso y se queda ahí |
+
 ### La función que saco del MVP: reordenar clases
 
 Es la única de tu lista que dejo afuera, y quiero ser explícito sobre por qué:
@@ -89,16 +104,37 @@ Va primera en la lista de v1.1. Si el sábado sobra tiempo, se adelanta.
 
 ## 7. Fuera del MVP
 
-**v1.1 — lo primero que sigue**
-- Reordenar clases y moverlas entre módulos (drag & drop)
-- Exportar las notas de un curso a Markdown
-- Buscador global por título de clase o texto de las notas
-- Escaneo de duraciones en segundo plano (ver Riesgo 3)
+**v1.1 — lo primero que sigue, en este orden**
+
+1. **Exportar las notas de un curso a Markdown** (~45 min) — ver más abajo por qué
+   Markdown y no una integración con Notion
+2. Reordenar clases y moverlas entre módulos (drag & drop)
+3. Buscador global por título de clase o texto de las notas
+4. Escaneo de duraciones con `ffprobe` en segundo plano (cierra el Riesgo 3)
+5. Miniaturas del video como portada: un frame del minuto 30 de la primera clase
 
 **v2 — si el proyecto sobrevive al primer mes**
+- **Transcribir los cursos con Whisper local e indexar el texto.** Buscás un concepto
+  y saltás al minuto exacto de cualquier clase de cualquier curso, aunque no te
+  acuerdes en cuál estaba. Es un proyecto en sí mismo — días, no horas — pero es lo
+  único de toda esta lista que da algo que las plataformas comerciales no dan bien
 - Detectar archivos faltantes y reconectarlos cuando movés una carpeta
 - Subtítulos (.srt/.vtt) en el reproductor
-- Estadísticas de tiempo visto
+
+### Por qué Markdown y no la API de Notion
+
+La integración directa con Notion cuesta unas ocho veces más por el mismo resultado:
+token de integración, elegir página o base destino, mapear las notas a bloques, y
+decidir qué pasa al reexportar (¿duplica, actualiza, borra?). Esa última pregunta sola
+se lleva una tarde.
+
+Notion importa Markdown nativamente: arrastrás el `.md` a una página y queda
+formateado. El mismo archivo sirve además para Obsidian, Logseq, o un `grep` dentro de
+cinco años, y no depende de un token que caduca ni de una API que cambia.
+
+La API valdría la pena solo para **sincronización continua** — que editar una nota acá
+actualice sola la página allá. Para "terminé el curso, quiero mis notas afuera",
+Markdown gana por afano.
 
 ## 8. Modelo de datos
 
@@ -223,12 +259,16 @@ que las 10 del MVP estén andando.
 | Bloque | Horas | Qué queda funcionando |
 |--------|-------|------------------------|
 | Sáb AM | 3–4 | Chequeo de codecs · esqueleto · escáner · base de datos → `npm start` lista los cursos con sus módulos y clases |
-| Sáb PM | 3–4 | Vista de clase · reproductor · guardado de posición → ver un video, cerrar, volver y reanudar |
+| Sáb PM | 4–5 | Vista de clase · reproductor · guardado de posición · atajos · autoplay → ver un video, cerrar, volver y reanudar |
 | Dom AM | 3–4 | Biblioteca · seguir donde quedaste · filtros · estados · % · marca "volver a esto" |
 | Dom PM | 4–5 | Notas · Recursos · renombrar · portadas · `studymate.bat` · pulido |
 
-**~17 horas.** Creció desde las 14 originales: Recursos, portadas y agregar carpeta
-suman unas 2 h 15, y el domingo a la tarde quedó cargado.
+**~18 h 30.** Creció desde las 14 originales: Recursos, portadas y agregar carpeta
+suman unas 2 h 15, y los detalles del reproductor otra hora y media.
+
+**Seamos honestos: esto ya no entra en un fin de semana.** Son dos fines de semana, o
+uno solo aplicando la línea de corte de abajo. Lo digo ahora y no el domingo a las
+once de la noche.
 
 El sábado a la tarde ya tenés lo que motivó el proyecto: retomar un video donde lo
 dejaste. Si el domingo se cae, ya ganaste.
