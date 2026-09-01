@@ -1,0 +1,302 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Figtree', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #B85A0D; text-decoration: none; }
+    a:hover { color: #8F4509; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; display: flex; align-items: stretch; background: #F4F6F8; color: #16233A;">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="width: 236px; flex: none; background: #FFFFFF; border-right: 1px solid #E3E8EE; display: flex; flex-direction: column; gap: 26px; padding: 24px 18px;">
+
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 6px;">
+      <div style="width: 28px; height: 28px; border-radius: 7px; background: #16233A; display: flex; align-items: center; justify-content: center;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M8 5.5v13l11-6.5z"></path></svg>
+      </div>
+      <span style="font-family: 'Archivo', system-ui, sans-serif; font-weight: 700; font-size: 16.5px; letter-spacing: -0.02em;">StudyMate</span>
+    </div>
+
+    <nav style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; background: #F1F4F8; font-size: 14px; font-weight: 600; color: #16233A;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16233A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"></rect><rect x="14" y="4" width="7" height="7" rx="1.5"></rect><rect x="3" y="15" width="7" height="5" rx="1.5"></rect><rect x="14" y="15" width="7" height="5" rx="1.5"></rect></svg>
+        <span>Biblioteca</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #56647D;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v16l-6-4.2L6 20z"></path></svg>
+        <span style="flex-grow: 1;">Volver a esto</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">7</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #56647D;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+        <span>Ajustes</span>
+      </div>
+    </nav>
+
+    <div style="height: 1px; background: #E3E8EE;"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 0 6px;">
+      <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #8B97A9;">Carpetas de biblioteca</div>
+      <div style="display: flex; flex-direction: column; gap: 7px;">
+        <div style="display: flex; align-items: flex-start; gap: 7px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.45; color: #56647D; word-break: break-all;">D:\Cursos</span>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 7px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.45; color: #56647D; word-break: break-all;">E:\Backup\Udemy</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1;"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 0 6px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8B97A9;">Escaneado hoy 09:12</div>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 7px; height: 34px; border: 1px solid #D8DFE7; border-radius: 8px; font-size: 13px; font-weight: 600; color: #16233A;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16233A" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"></path><path d="M20 5v6h-6"></path></svg>
+        <span>Reescanear</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 26px; padding: 30px 38px 46px;">
+
+    <!-- header -->
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <h1 style="margin: 0; font-family: 'Archivo', system-ui, sans-serif; font-weight: 700; font-size: 31px; letter-spacing: -0.028em;">Biblioteca</h1>
+        <div style="font-size: 14px; color: #56647D;">23 cursos · 1.412 clases · 6 en curso</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border: 1px solid #D8DFE7; background: #FFFFFF; border-radius: 9px; font-size: 13.5px; font-weight: 600;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16233A" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <span>Agregar carpeta</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 17px; background: #16233A; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: #FFFFFF;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+          <span>Agregar curso</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- seguir donde quedaste -->
+    <div style="display: flex; align-items: stretch; gap: 22px; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 13px; padding: 18px; box-shadow: 0 1px 2px rgba(22,35,58,.05), 0 10px 26px -18px rgba(22,35,58,.22);">
+      <div style="position: relative; width: 218px; height: 123px; flex: none; border-radius: 9px; background: #2C4A6E; overflow: hidden;">
+        <span style="position: absolute; right: -8px; bottom: -22px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 76px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">PG</span>
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);">
+          <div style="width: 28%; height: 4px; background: #E8720C;"></div>
+        </div>
+        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.93); display: flex; align-items: center; justify-content: center;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#16233A"><path d="M8 5.5v13l11-6.5z"></path></svg>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; justify-content: center;">
+        <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: #B85A0D;">Seguir donde quedaste</div>
+        <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">PostgreSQL para desarrolladores</div>
+        <div style="font-size: 14px; color: #56647D;">Módulo 4 · Clase 19 — Índices compuestos y covering indexes</div>
+        <div style="display: flex; align-items: center; gap: 12px; padding-top: 6px;">
+          <div style="width: 300px; height: 6px; border-radius: 3px; background: #E9EDF2;">
+            <div style="width: 28%; height: 6px; border-radius: 3px; background: #E8720C;"></div>
+          </div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56647D; font-variant-numeric: tabular-nums;">18/64 · 28%</span>
+          <span style="font-size: 12.5px; color: #8B97A9;">quedan 6:12 de esta clase</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; flex: none;">
+        <div style="display: flex; align-items: center; gap: 9px; height: 44px; padding: 0 24px; background: #E8720C; border-radius: 10px; font-size: 15px; font-weight: 700; color: #FFFFFF;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M8 5.5v13l11-6.5z"></path></svg>
+          <span>Continuar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- filtros -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #16233A; color: #FFFFFF; font-size: 13px; font-weight: 600;">
+        <span>Todos</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; opacity: .65;">23</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500; color: #16233A;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #E8720C;"></span>
+        <span>En curso</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">6</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500; color: #16233A;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #C3CBD6;"></span>
+        <span>Sin empezar</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">11</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500; color: #16233A;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #7E8CA3;"></span>
+        <span>En pausa</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">2</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500; color: #16233A;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #2E7D5B;"></span>
+        <span>Terminado</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">4</span>
+      </div>
+      <div style="width: 1px; height: 22px; background: #D8DFE7; margin: 0 4px;"></div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px dashed #C3CBD6; font-size: 13px; font-weight: 500; color: #56647D;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M8 3v3M16 3v3"></path></svg>
+        <span>Entretenimiento</span>
+      </div>
+    </div>
+
+    <!-- grilla -->
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px;">
+
+      <!-- card 1 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #2C4A6E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">PG</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 28%; height: 4px; background: #E8720C;"></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">PostgreSQL para desarrolladores</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">6 módulos · 64 clases · 11 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #FDEEE0; font-size: 11.5px; font-weight: 600; color: #B85A0D;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #E8720C;"></span>En curso</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; font-variant-numeric: tabular-nums;">18/64 · 28%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- card 2 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #7A3B2E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">RS</span>
+          <div style="position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 7px; background: rgba(0,0,0,.32); display: flex; align-items: center; justify-content: center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M6 4h12v16l-6-4.2L6 20z"></path></svg>
+          </div>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 62%; height: 4px; background: #E8720C;"></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">Rust desde cero</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">9 módulos · 112 clases · 19 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #FDEEE0; font-size: 11.5px; font-weight: 600; color: #B85A0D;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #E8720C;"></span>En curso</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; font-variant-numeric: tabular-nums;">69/112 · 62%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- card 3 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #3F4A66;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">DS</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 15%; height: 4px; background: #7E8CA3;"></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">Diseño de sistemas distribuidos</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">7 módulos · 48 clases · 14 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #EDF1F5; font-size: 11.5px; font-weight: 600; color: #56647D;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #7E8CA3;"></span>En pausa</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; font-variant-numeric: tabular-nums;">7/48 · 15%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- card 4 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #2F5D4F;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">K8</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 100%; height: 4px; background: #4FBE8B;"></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">Fundamentos de Kubernetes</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">5 módulos · 38 clases · 7 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #E4F1EA; font-size: 11.5px; font-weight: 600; color: #2E7D5B;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+              Terminado</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; font-variant-numeric: tabular-nums;">38/38 · 100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- card 5 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #4A3A6B;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">3J</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">Three.js y WebGL desde cero</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">8 módulos · 74 clases · 16 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9; font-variant-numeric: tabular-nums;">0/74</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- card 6 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #6B5638;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">FP</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">Fotografía de producto</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">4 módulos · 29 clases · 5 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9; font-variant-numeric: tabular-nums;">0/29</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- card 7 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #5C2F3E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">CJ</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 40%; height: 4px; background: #E8720C;"></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">Historia del cine japonés</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">3 módulos · 20 clases · 22 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #FFFFFF; border: 1px dashed #C3CBD6; font-size: 11.5px; font-weight: 600; color: #56647D;">Entretenimiento</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; font-variant-numeric: tabular-nums;">8/20 · 40%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- card 8 -->
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(22,35,58,.04);">
+        <div style="position: relative; height: 141px; background: #2E5560;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14); letter-spacing: -0.04em;">TJ</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 100%; height: 4px; background: #4FBE8B;"></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28; letter-spacing: -0.012em;">Testing en JavaScript</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">6 módulos · 52 clases · 9 h</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #E4F1EA; font-size: 11.5px; font-weight: 600; color: #2E7D5B;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+              Terminado</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; font-variant-numeric: tabular-nums;">52/52 · 100%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",         "x": 0,    "y": 0,    "w": 1440, "h": 1180, "title": "Biblioteca" },
+    { "file": "Curso.dc.html",        "x": 1560, "y": 0,    "w": 1440, "h": 1420, "title": "Curso" },
+    { "file": "Clase.dc.html",        "x": 0,    "y": 1580, "w": 1440, "h": 1120, "title": "Clase" },
+    { "file": "AgregarCurso.dc.html", "x": 1560, "y": 1580, "w": 700,  "h": 800,  "title": "Agregar curso" }
+  ],
+  "annotations": [
+    { "id": "nota-portadas", "x": 0, "y": -170, "w": 460, "text": "Portadas generadas: color derivado del titulo + monograma. La app no tiene imagenes propias, asi que esta es la portada por defecto; se puede reemplazar por una subida desde el artboard Agregar curso." },
+    { "id": "nota-codecs", "x": 1560, "y": -170, "w": 460, "text": "Riesgo 1 del PRD hecho visible: las clases .mkv o HEVC muestran el badge \"Abrir en VLC\" en vez de reproducirse. Sin transcodificacion, sin ffmpeg." },
+    { "id": "nota-orden", "x": 520, "y": -170, "w": 420, "text": "Reordenar clases quedo fuera del MVP. Renombrar si esta: es el escape hatch cuando el escaner acierta el orden pero no el nombre." }
+  ],
+  "launch": { "view": "canvas" }
+}

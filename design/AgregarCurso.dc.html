@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Figtree', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #B85A0D; text-decoration: none; }
+    a:hover { color: #8F4509; }
+  </style>
+</helmet>
+
+<div style="width: 700px; padding: 26px; background: #E8ECF1; display: flex; flex-direction: column; color: #16233A;">
+
+  <div style="display: flex; flex-direction: column; background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 6px rgba(22,35,58,.08), 0 24px 56px -24px rgba(22,35,58,.45); overflow: hidden;">
+
+    <!-- header -->
+    <div style="display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid #EFF2F6;">
+      <div style="display: flex; flex-direction: column; gap: 3px; flex-grow: 1;">
+        <h2 style="margin: 0; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.024em;">Agregar curso</h2>
+        <span style="font-size: 13px; color: #56647D;">StudyMate solo lee la carpeta. No mueve, copia ni renombra archivos.</span>
+      </div>
+      <div style="width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex: none;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="2.1" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 22px; padding: 24px;">
+
+      <!-- carpeta -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #56647D;">Carpeta del curso</label>
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <div style="flex-grow: 1; display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 13px; border: 1px solid #16233A; border-radius: 9px; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(22,35,58,.07);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #16233A;">D:\Cursos\PostgreSQL for Developers 2024</span>
+          </div>
+          <div style="display: flex; align-items: center; height: 42px; padding: 0 16px; border: 1px solid #D8DFE7; border-radius: 9px; font-size: 13.5px; font-weight: 600; flex: none;">Elegir…</div>
+        </div>
+      </div>
+
+      <!-- resultado del escaneo -->
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 15px 17px; background: #F4F9F6; border: 1px solid #CFE6DA; border-radius: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex: none;"><circle cx="12" cy="12" r="9.5" fill="#2E7D5B"></circle><path d="M16.5 9.5L10.8 15.2 7.8 12.2" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span style="font-size: 14px; font-weight: 600; color: #235F45;">6 módulos · 64 clases · 3 PDFs</span>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B85A0D" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9L2.4 17.5A1.8 1.8 0 0 0 4 20.3h16a1.8 1.8 0 0 0 1.6-2.8L13.7 3.9a1.8 1.8 0 0 0-3.4 0z"></path></svg>
+          <span style="font-size: 13px; line-height: 1.45; color: #56647D;">2 archivos <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">.mkv</span> no se reproducen en el navegador. Vas a poder abrirlos con VLC desde la clase.</span>
+        </div>
+      </div>
+
+      <!-- título -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #56647D;">Título</label>
+        <div style="display: flex; align-items: center; height: 42px; padding: 0 13px; border: 1px solid #D8DFE7; border-radius: 9px; font-size: 14.5px; font-weight: 500;">PostgreSQL para desarrolladores</div>
+        <span style="font-size: 12.5px; color: #8B97A9;">Detectado desde el nombre de la carpeta. Podés cambiarlo cuando quieras.</span>
+      </div>
+
+      <!-- portada -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <label style="font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #56647D;">Portada</label>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+
+          <div style="display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 2px solid #16233A; border-radius: 11px; background: #FBFCFD;">
+            <div style="position: relative; height: 108px; border-radius: 8px; background: #2C4A6E; overflow: hidden;">
+              <span style="position: absolute; right: -5px; bottom: -14px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 54px; color: rgba(255,255,255,.15); letter-spacing: -0.04em;">PG</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px;">
+              <span style="width: 20px; height: 20px; border-radius: 5px; background: #2C4A6E; border: 2px solid #16233A;"></span>
+              <span style="width: 20px; height: 20px; border-radius: 5px; background: #7A3B2E;"></span>
+              <span style="width: 20px; height: 20px; border-radius: 5px; background: #2F5D4F;"></span>
+              <span style="width: 20px; height: 20px; border-radius: 5px; background: #4A3A6B;"></span>
+              <span style="width: 20px; height: 20px; border-radius: 5px; background: #6B5638;"></span>
+              <span style="width: 20px; height: 20px; border-radius: 5px; background: #5C2F3E;"></span>
+            </div>
+            <span style="font-size: 12.5px; font-weight: 600;">Generada</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 12px; border: 1.5px dashed #C3CBD6; border-radius: 11px; background: #FBFCFD; min-height: 158px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"></path><path d="M8 8l4-4 4 4"></path><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg>
+            <span style="font-size: 13px; font-weight: 600; color: #56647D;">Subir una imagen</span>
+            <span style="font-size: 12px; color: #8B97A9;">JPG o PNG · se recorta a 16:9</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- tipo -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #56647D;">Tipo</label>
+        <div style="display: flex; align-items: center; gap: 4px; padding: 4px; background: #F1F4F8; border-radius: 10px; width: fit-content;">
+          <span style="height: 33px; padding: 0 20px; border-radius: 7px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(22,35,58,.1); font-size: 13.5px; font-weight: 700; display: flex; align-items: center;">Estudio</span>
+          <span style="height: 33px; padding: 0 20px; border-radius: 7px; font-size: 13.5px; font-weight: 500; color: #56647D; display: flex; align-items: center;">Entretenimiento</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- footer -->
+    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 24px; background: #FBFCFD; border-top: 1px solid #EFF2F6;">
+      <div style="display: flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 9px; font-size: 14px; font-weight: 600; color: #56647D;">Cancelar</div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 20px; background: #16233A; border-radius: 9px; font-size: 14px; font-weight: 700; color: #FFFFFF;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        <span>Agregar curso</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
