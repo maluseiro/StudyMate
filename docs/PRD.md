@@ -54,6 +54,9 @@ Escribirlos es lo que hace que el proyecto entre en un fin de semana:
 
 ## 6. Alcance del MVP (v1 — el fin de semana)
 
+Catorce funciones. Las diez primeras salieron de la lista original; las cuatro
+últimas se sumaron al revisar el diseño.
+
 | # | Función | Por qué entra |
 |---|---------|---------------|
 | 1 | Escanear la carpeta y armar el índice de cursos, módulos, videos y PDFs | Sin esto no hay app |
@@ -66,6 +69,10 @@ Escribirlos es lo que hace que el proyecto entre en un fin de semana:
 | 8 | **Renombrar** clases y módulos sin tocar el disco | Es el escape hatch del escáner imperfecto |
 | 9 | Estado y tipo por curso, con filtros en la biblioteca | Es lo que hace usable una biblioteca de 40 cursos |
 | 10 | Marca "volver a esto" y filtro para verlas | Barato: un booleano y un filtro |
+| 11 | Sección de **Recursos** del curso: PDFs, imágenes, código y comprimidos | El material que no es video estaba escondido en una pestaña |
+| 12 | Portada por curso: generada por defecto, personalizada opcional | Es lo que hace que la biblioteca se lea como catálogo y no como lista |
+| 13 | Agregar otra carpeta de biblioteca y reescanear | Los cursos no viven todos bajo la misma raíz |
+| 14 | Marcar vista a mano y botón "Siguiente clase" | El 90% no alcanza para los .mkv, y evita volver al índice entre clases |
 
 ### La función que saco del MVP: reordenar clases
 
@@ -138,18 +145,23 @@ Tres decisiones que valen la pena:
 - Filtros por estado (en curso · sin empezar · en pausa · terminado) + entretenimiento
 - Lista de cursos: título, estado, %, vistas/total y barra de avance
 
-**Curso**
+**Curso · Contenido**
 - Título editable y la ruta en el disco
 - Selectores de estado y tipo
 - Clases agrupadas por módulo: tu título arriba, el nombre real del archivo abajo
 - Renombrar en línea
 - Botón "Seguir curso" → abre la primera clase sin terminar
 
+**Curso · Recursos** (pestaña)
+- Todo lo que no es video, agrupado por módulo
+- Filtros por tipo: PDF, imágenes, código, comprimidos
+- Miniatura para las imágenes; PDFs e imágenes abren embebidos, el resto abre la carpeta
+
 **Clase**
 - Reproductor: barra, velocidad 1x–2x, minuto actual
 - Título, cuánto le queda, botón "volver a esto"
 - Pestaña Notas, con botón de marca de tiempo
-- Pestaña Archivos, con los PDFs del módulo
+- Pestaña Recursos, con los archivos del módulo
 - Barra lateral con las clases del curso y el estado de cada una
 
 ## 11. Arquitectura
@@ -213,10 +225,20 @@ que las 10 del MVP estén andando.
 | Sáb AM | 3–4 | Chequeo de codecs · esqueleto · escáner · base de datos → `npm start` lista los cursos con sus módulos y clases |
 | Sáb PM | 3–4 | Vista de clase · reproductor · guardado de posición → ver un video, cerrar, volver y reanudar |
 | Dom AM | 3–4 | Biblioteca · seguir donde quedaste · filtros · estados · % · marca "volver a esto" |
-| Dom PM | 2–3 | Notas · PDFs · renombrar · `studymate.bat` · pulido |
+| Dom PM | 4–5 | Notas · Recursos · renombrar · portadas · `studymate.bat` · pulido |
 
-**~14 horas.** El sábado a la tarde ya tenés lo que motivó el proyecto: retomar un video
-donde lo dejaste. Si el domingo se cae, ya ganaste.
+**~17 horas.** Creció desde las 14 originales: Recursos, portadas y agregar carpeta
+suman unas 2 h 15, y el domingo a la tarde quedó cargado.
+
+El sábado a la tarde ya tenés lo que motivó el proyecto: retomar un video donde lo
+dejaste. Si el domingo se cae, ya ganaste.
+
+**Línea de corte del domingo.** Si el tiempo aprieta, esto cae a v1.1 en este orden, y
+ninguna de las tres rompe nada:
+
+1. Los filtros por tipo en Recursos — una lista plana funciona igual
+2. La portada personalizada — la generada ya se ve bien
+3. Agregar una segunda carpeta de biblioteca — con una raíz alcanza para empezar
 
 ## 14. Definición de "listo"
 

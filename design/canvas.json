@@ -1,14 +1,16 @@
 {
   "artboards": [
     { "file": "Main.dc.html",         "x": 0,    "y": 0,    "w": 1440, "h": 940,  "title": "Biblioteca" },
-    { "file": "Curso.dc.html",        "x": 1560, "y": 0,    "w": 1440, "h": 1360, "title": "Curso" },
-    { "file": "Clase.dc.html",        "x": 0,    "y": 1500, "w": 1440, "h": 1140, "title": "Clase" },
-    { "file": "AgregarCurso.dc.html", "x": 1560, "y": 1500, "w": 700,  "h": 870,  "title": "Agregar curso" }
+    { "file": "Curso.dc.html",        "x": 1560, "y": 0,    "w": 1440, "h": 1380, "title": "Curso · Contenido" },
+    { "file": "Recursos.dc.html",     "x": 3120, "y": 0,    "w": 1440, "h": 1160, "title": "Curso · Recursos" },
+    { "file": "Clase.dc.html",        "x": 0,    "y": 1520, "w": 1440, "h": 1140, "title": "Clase" },
+    { "file": "AgregarCurso.dc.html", "x": 1560, "y": 1520, "w": 700,  "h": 870,  "title": "Agregar curso" }
   ],
   "annotations": [
     { "id": "nota-portadas", "x": 0, "y": -190, "w": 460, "text": "Portadas generadas: color derivado del titulo + monograma. La app no tiene imagenes propias, asi que esta es la portada por defecto; se reemplaza por una subida desde el artboard Agregar curso." },
     { "id": "nota-orden", "x": 520, "y": -190, "w": 420, "text": "Reordenar clases quedo fuera del MVP. Renombrar si esta: es el escape hatch para cuando el escaner acierta el orden pero no el nombre." },
-    { "id": "nota-codecs", "x": 1560, "y": -190, "w": 460, "text": "Riesgo 1 del PRD hecho visible: las clases .mkv o HEVC muestran el badge \"Abrir en VLC\" en vez de reproducirse. Sin transcodificacion, sin ffmpeg." }
+    { "id": "nota-codecs", "x": 1560, "y": -190, "w": 460, "text": "Riesgo 1 del PRD hecho visible: las clases .mkv o HEVC muestran el badge \"Abrir en VLC\" en vez de reproducirse. Sin transcodificacion, sin ffmpeg." },
+    { "id": "nota-recursos", "x": 3120, "y": -190, "w": 460, "text": "Recursos: todo lo que no es video. Las miniaturas de imagen son placeholders dibujados; en la app real es el propio archivo escalado. Los PDFs e imagenes abren embebidos; zips y demas abren la carpeta en el Explorador." }
   ],
   "launch": { "view": "canvas" }
 }
