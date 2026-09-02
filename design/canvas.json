@@ -1,24 +1,150 @@
 {
   "pages": [
-    { "id": "page-2", "name": "Propuesta · barra superior" },
-    { "id": "page-1", "name": "Actual · barra lateral" }
+    {
+      "id": "page-2",
+      "name": "Propuesta · barra superior"
+    },
+    {
+      "id": "page-1",
+      "name": "Actual · barra lateral"
+    }
   ],
   "artboards": [
-    { "file": "BibliotecaTop.dc.html", "x": 0,    "y": 0,    "w": 1440, "h": 1000, "title": "Biblioteca · barra superior", "page": "page-2" },
-    { "file": "AjustesTop.dc.html",    "x": 1560, "y": 0,    "w": 1440, "h": 900,  "title": "Ajustes · dónde va lo que sale", "page": "page-2" },
-
-    { "file": "Main.dc.html",         "x": 0,    "y": 0,    "w": 1440, "h": 940,  "title": "Biblioteca", "page": "page-1" },
-    { "file": "Curso.dc.html",        "x": 1560, "y": 0,    "w": 1440, "h": 1380, "title": "Curso · Contenido", "page": "page-1" },
-    { "file": "Recursos.dc.html",     "x": 3120, "y": 0,    "w": 1440, "h": 1160, "title": "Curso · Recursos", "page": "page-1" },
-    { "file": "Clase.dc.html",        "x": 0,    "y": 1520, "w": 1440, "h": 1140, "title": "Clase", "page": "page-1" },
-    { "file": "FinDeClase.dc.html",   "x": 1560, "y": 1520, "w": 1040, "h": 700,  "title": "Fin de clase · autoplay", "page": "page-1" },
-    { "file": "AgregarCurso.dc.html", "x": 2720, "y": 1520, "w": 700,  "h": 870,  "title": "Agregar curso", "page": "page-1" }
+    {
+      "file": "BibliotecaTop.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 1000,
+      "title": "Biblioteca · barra superior",
+      "page": "page-2"
+    },
+    {
+      "file": "AjustesTop.dc.html",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "Ajustes · dónde va lo que sale",
+      "page": "page-2"
+    },
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 940,
+      "title": "Biblioteca",
+      "page": "page-1"
+    },
+    {
+      "file": "Curso.dc.html",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 1380,
+      "title": "Curso · Contenido",
+      "page": "page-1"
+    },
+    {
+      "file": "Recursos.dc.html",
+      "x": 3120,
+      "y": 0,
+      "w": 1440,
+      "h": 1160,
+      "title": "Curso · Recursos",
+      "page": "page-1"
+    },
+    {
+      "file": "Clase.dc.html",
+      "x": 0,
+      "y": 1520,
+      "w": 1440,
+      "h": 1140,
+      "title": "Clase",
+      "page": "page-1"
+    },
+    {
+      "file": "FinDeClase.dc.html",
+      "x": 1560,
+      "y": 1520,
+      "w": 1040,
+      "h": 700,
+      "title": "Fin de clase · autoplay",
+      "page": "page-1"
+    },
+    {
+      "file": "AgregarCurso.dc.html",
+      "x": 2720,
+      "y": 1520,
+      "w": 700,
+      "h": 870,
+      "title": "Agregar curso",
+      "page": "page-1"
+    },
+    {
+      "file": "ClaseTop.dc.html",
+      "x": 0,
+      "y": 1250,
+      "w": 1440,
+      "h": 1180,
+      "title": "Clase · barra de contexto (recomendado)",
+      "page": "page-2"
+    },
+    {
+      "file": "ClaseDosBarras.dc.html",
+      "x": 1560,
+      "y": 1250,
+      "w": 1440,
+      "h": 540,
+      "title": "Clase · las dos barras (alternativa)",
+      "page": "page-2"
+    }
   ],
   "annotations": [
-    { "id": "nota-propuesta", "x": 0, "y": -200, "w": 520, "page": "page-2", "text": "Propuesta: la barra lateral se va y queda una barra superior con el buscador al centro. Lo que la barra tenia y no era navegacion (carpetas, reescanear, tema) se muda a Ajustes, en el artboard de al lado." },
-    { "id": "nota-ancho", "x": 580, "y": -200, "w": 480, "page": "page-2", "text": "Lo que se gana: sin los 236 px de la barra, la grilla pasa de 3 a 5 columnas. Con 12 cursos entran todos casi sin scrollear." },
-    { "id": "nota-clase", "x": 1560, "y": -200, "w": 480, "page": "page-2", "text": "La pantalla de clase no cambia: ya usaba todo el ancho y su barra lateral es el indice del curso, que si es navegacion." },
-    { "id": "nota-actual", "x": 0, "y": -170, "w": 520, "page": "page-1", "text": "Como esta hoy, para comparar. Estas pantallas siguen siendo la referencia de todo lo demas: portadas generadas, badge de VLC, nombre real del archivo bajo cada titulo." }
+    {
+      "id": "nota-propuesta",
+      "x": 0,
+      "y": -200,
+      "w": 520,
+      "page": "page-2",
+      "text": "Propuesta: la barra lateral se va y queda una barra superior con el buscador al centro. Lo que la barra tenia y no era navegacion (carpetas, reescanear, tema) se muda a Ajustes, en el artboard de al lado."
+    },
+    {
+      "id": "nota-ancho",
+      "x": 580,
+      "y": -200,
+      "w": 480,
+      "page": "page-2",
+      "text": "Lo que se gana: sin los 236 px de la barra, la grilla pasa de 3 a 5 columnas. Con 12 cursos entran todos casi sin scrollear."
+    },
+    {
+      "id": "nota-actual",
+      "x": 0,
+      "y": -170,
+      "w": 520,
+      "page": "page-1",
+      "text": "Como esta hoy, para comparar. Estas pantallas siguen siendo la referencia de todo lo demas: portadas generadas, badge de VLC, nombre real del archivo bajo cada titulo."
+    },
+    {
+      "id": "nota-clase-ctx",
+      "x": 0,
+      "y": 1050,
+      "w": 520,
+      "page": "page-2",
+      "text": "Recomendado. La barra de contexto reemplaza a la global: mismo lenguaje visual, pero sin navegacion ni buscador. Suma el avance del curso, que hoy solo se ve en la lateral derecha. Es lo que hace Udemy en su reproductor."
+    },
+    {
+      "id": "nota-clase-dos",
+      "x": 1560,
+      "y": 1050,
+      "w": 520,
+      "page": "page-2",
+      "text": "Alternativa: dejar las dos. Es mas consistente con el resto de la app, pero se come 120 px antes de que empiece el video, y el buscador ahi no sirve para nada."
+    }
   ],
-  "launch": { "view": "canvas", "page": "page-2" }
+  "launch": {
+    "view": "canvas",
+    "page": "page-2"
+  }
 }

@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #F4F6F8; font-family: 'Figtree', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; display: flex; flex-direction: column; background: #F4F6F8; color: #16233A;">
+
+  <!-- barra global, la misma de la biblioteca -->
+  <div style="display: flex; align-items: center; gap: 22px; height: 62px; flex: none; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E3E8EE;">
+    <div style="display: flex; align-items: center; gap: 10px; flex: none;">
+      <div style="width: 30px; height: 30px; border-radius: 8px; background: #16233A; display: flex; align-items: center; justify-content: center;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M8 5.5v13l11-6.5z"></path></svg>
+      </div>
+      <span style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -.02em;">StudyMate</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 4px; flex: none;">
+      <span style="height: 34px; padding: 0 13px; border-radius: 8px; background: #F1F4F8; font-size: 14px; font-weight: 600; display: flex; align-items: center;">Biblioteca</span>
+      <span style="height: 34px; padding: 0 13px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #56647D; display: flex; align-items: center;">Volver a esto</span>
+    </div>
+    <div style="flex-grow: 1; display: flex; justify-content: center; min-width: 0;">
+      <div style="position: relative; width: 100%; max-width: 520px; display: flex; align-items: center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.9" stroke-linecap="round" style="position: absolute; left: 13px;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4.2-4.2"></path></svg>
+        <div style="width: 100%; height: 40px; padding: 0 14px 0 40px; border: 1px solid #D8DFE7; border-radius: 99px; background: #F7F9FB; font-size: 14px; color: #8B97A9; display: flex; align-items: center;">Buscar clases, archivos y tus notas…</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 9px; flex: none;">
+      <div style="width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#56647D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"></path></svg>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; background: #16233A; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: #FFFFFF;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        <span>Agregar curso</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- y encima la de contexto -->
+  <div style="display: flex; align-items: center; gap: 18px; height: 58px; flex: none; padding: 0 24px; background: #FBFCFD; border-bottom: 1px solid #E3E8EE;">
+    <div style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 14px 0 10px; border-radius: 9px; background: #F1F4F8; font-size: 13.5px; font-weight: 600; flex: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16233A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+      <span>Volver al curso</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: none;">
+      <div style="position: relative; width: 46px; height: 26px; flex: none; border-radius: 5px; background: #2C4A6E; overflow: hidden;">
+        <span style="position: absolute; right: -2px; bottom: -5px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 17px; color: rgba(255,255,255,.2);">PG</span>
+      </div>
+      <span style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: -.015em;">PostgreSQL para desarrolladores</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 11px; flex-grow: 1; justify-content: center; min-width: 0;">
+      <div style="width: 220px; height: 6px; border-radius: 3px; background: #E9EDF2;"><div style="width: 28%; height: 6px; border-radius: 3px; background: #E8720C;"></div></div>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56647D;">18/64 · 28%</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 4px; background: #EDF1F5; border-radius: 8px; padding: 3px; flex: none;">
+      <span style="height: 26px; padding: 0 10px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; display: flex; align-items: center;">1x</span>
+      <span style="height: 26px; padding: 0 10px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; display: flex; align-items: center;">1.25x</span>
+      <span style="height: 26px; padding: 0 10px; border-radius: 6px; background: #E8720C; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 600; color: #FFFFFF; display: flex; align-items: center;">1.5x</span>
+      <span style="height: 26px; padding: 0 10px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; display: flex; align-items: center;">1.75x</span>
+      <span style="height: 26px; padding: 0 10px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D; display: flex; align-items: center;">2x</span>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: stretch;">
+    <div style="flex-grow: 1; min-width: 0; padding: 22px 26px;">
+      <div style="height: 320px; border-radius: 12px; background: #0C1116; display: flex; align-items: flex-end; padding: 18px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: rgba(255,255,255,.3);">120 px de alto perdidos antes de que empiece el video</span>
+      </div>
+    </div>
+    <div style="width: 372px; flex: none; background: #FFFFFF; border-left: 1px solid #E3E8EE; padding: 18px 20px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 9px;">
+        <span style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 14.5px;">Contenido del curso</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56647D;">18/64 · 28%</span>
+      </div>
+      <div style="height: 6px; border-radius: 3px; background: #E9EDF2;"><div style="width: 28%; height: 6px; border-radius: 3px; background: #E8720C;"></div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
