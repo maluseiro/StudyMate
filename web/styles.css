@@ -581,3 +581,6 @@ mark { background: var(--st-going-bg); color: var(--st-going-fg); border-radius:
   border-radius: 8px; background: var(--surface-2); font-size: 13px;
 }
 .search-box input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+
+.icon-btn.is-done { color: var(--ok); }
+.icon-btn.is-done:hover { background: var(--ok-soft); }

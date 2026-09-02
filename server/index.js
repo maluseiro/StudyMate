@@ -465,6 +465,40 @@ app.delete('/api/modules/:id/reorder', wrap((req, res) => {
   res.json({ ok: true });
 }));
 
+// ---------------------------------------------------------------- marcar en bloque
+
+/**
+ * Marcar de a una es tedioso cuando ya viste medio curso antes de tener la app.
+ * No se toca la posición: desmarcar una clase te deja volver donde ibas.
+ */
+const setWatchedIn = (where) => db.prepare(`
+  UPDATE lessons SET watched = @watched, updated_at = datetime('now')
+  WHERE ${where} AND kind = 'video' AND missing = 0 AND watched <> @watched
+`);
+
+const setWatchedModule = setWatchedIn('module_id = @id');
+const setWatchedCourse = setWatchedIn('course_id = @id');
+
+app.post('/api/modules/:id/watched', wrap((req, res) => {
+  const module = db.prepare('SELECT * FROM modules WHERE id = ?').get(req.params.id);
+  if (!module) return fail(res, 404, 'Ese módulo ya no existe.');
+  const watched = req.body?.watched ? 1 : 0;
+
+  const { changes } = setWatchedModule.run({ id: module.id, watched });
+  refreshAutoStatus(module.course_id);
+  res.json({ changed: changes, watched: Boolean(watched), progress: courseProgress(module.course_id) });
+}));
+
+app.post('/api/courses/:id/watched', wrap((req, res) => {
+  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
+  if (!course) return fail(res, 404, 'Ese curso no está en la biblioteca.');
+  const watched = req.body?.watched ? 1 : 0;
+
+  const { changes } = setWatchedCourse.run({ id: course.id, watched });
+  refreshAutoStatus(course.id);
+  res.json({ changed: changes, watched: Boolean(watched), progress: courseProgress(course.id) });
+}));
+
 // ---------------------------------------------------------------- exportar notas
 
 

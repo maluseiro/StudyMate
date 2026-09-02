@@ -119,6 +119,9 @@ Va primera en la lista de v1.1. Si el sábado sobra tiempo, se adelanta.
 5. **Portada desde un fotograma del video**, tomado al 12% de la duración de la primera
    clase — el principio suele ser una placa negra
 6. **Tema oscuro**, con una tercera opción que sigue al sistema
+7. **Marcar módulos y cursos enteros como vistos.** Fue lo primero que pidió el uso
+   real: con cursos ya vistos a medias antes de tener la app, marcar de a una clase no
+   es viable. No toca las notas ni la posición guardada de cada video
 
 Quedó afuera de esta tanda: **mover clases entre módulos**. El módulo sale de la carpeta
 en el disco, así que un reescaneo la devolvería a su lugar; hacerlo bien pide otra marca

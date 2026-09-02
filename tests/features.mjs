@@ -146,6 +146,89 @@ await step('volver al orden original', async () => {
   if (edited) throw new Error('sigue marcado como manual');
 });
 
+await step('marcar un módulo entero como visto', async () => {
+  await page.evaluate((id) => fetch(`/api/courses/${id}/watched`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ watched: false }),
+  }), withVideo.id);
+  // Pasar por la biblioteca fuerza un dibujado nuevo: ir al mismo hash no re-dibuja
+  // y la vista quedaría mostrando el estado anterior.
+  await page.goto(`${base}/#/`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(300);
+  await page.goto(`${base}/#/curso/${withVideo.id}`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.module-head');
+
+  const antes = await page.evaluate((id) => fetch(`/api/courses/${id}`).then((r) => r.json())
+    .then((d) => d.course.progress.watched), withVideo.id);
+  const enModulo = await page.evaluate((id) => fetch(`/api/courses/${id}`).then((r) => r.json())
+    .then((d) => d.modules[0].lessons.length), withVideo.id);
+
+  await page.locator('.module').first().locator('.module-head .icon-btn').nth(1).click();
+  await page.waitForTimeout(1200);
+
+  const despues = await page.evaluate((id) => fetch(`/api/courses/${id}`).then((r) => r.json())
+    .then((d) => d.course.progress.watched), withVideo.id);
+  if (despues !== antes + enModulo) throw new Error(`esperaba ${antes + enModulo} vistas, hay ${despues}`);
+});
+
+await step('volver a tocarlo lo desmarca', async () => {
+  await page.locator('.module').first().locator('.module-head .icon-btn').nth(1).click();
+  await page.waitForTimeout(1200);
+  const n = await page.evaluate((id) => fetch(`/api/courses/${id}`).then((r) => r.json())
+    .then((d) => d.modules[0].lessons.filter((l) => l.watched).length), withVideo.id);
+  if (n !== 0) throw new Error('quedaron ' + n + ' vistas');
+});
+
+await step('marcar el curso entero pide confirmación', async () => {
+  await page.locator('button', { hasText: 'Marcar todo visto' }).click();
+  await page.waitForSelector('dialog[open]', { timeout: 3000 });
+  await page.locator('dialog button', { hasText: 'Cancelar' }).click();
+  await page.waitForTimeout(600);
+  const n = await page.evaluate((id) => fetch(`/api/courses/${id}`).then((r) => r.json())
+    .then((d) => d.course.progress.watched), withVideo.id);
+  if (n !== 0) throw new Error('cancelar igual marcó ' + n);
+});
+
+await step('confirmar marca el curso entero y lo pasa a terminado', async () => {
+  await page.locator('button', { hasText: 'Marcar todo visto' }).click();
+  await page.waitForSelector('dialog[open]', { timeout: 3000 });
+  await page.locator('dialog button', { hasText: 'Marcar todo' }).click();
+  await page.waitForTimeout(1500);
+  const d = await page.evaluate((id) => fetch(`/api/courses/${id}`).then((r) => r.json()), withVideo.id);
+  if (d.course.progress.percent !== 100) throw new Error('progreso: ' + d.course.progress.percent);
+  if (d.course.status !== 'terminado') throw new Error('estado: ' + d.course.status);
+});
+
+await step('marcar en bloque no borra las notas ni la posición', async () => {
+  // Dejamos una posición y una nota a propósito, y después marcamos todo en bloque.
+  await page.evaluate((id) => Promise.all([
+    fetch(`/api/lessons/${id}/progress`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ position: 3.5, duration: 60 }),
+    }),
+    fetch(`/api/lessons/${id}/notes`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: 'una nota que no se tiene que perder' }),
+    }),
+  ]), anyLesson.id);
+
+  await page.evaluate((id) => fetch(`/api/courses/${id}/watched`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ watched: true }),
+  }), withVideo.id);
+
+  const l = await page.evaluate((id) => fetch(`/api/lessons/${id}`).then((r) => r.json()), anyLesson.id);
+  if (Math.abs(l.lesson.position - 3.5) > 0.01) throw new Error('posición: ' + l.lesson.position);
+  if (!l.notes.includes('no se tiene que perder')) throw new Error('se perdió la nota');
+  if (!l.lesson.watched) throw new Error('no quedó marcada como vista');
+
+  // Dejamos el curso como lo encontramos, para que la serie se pueda repetir.
+  await page.evaluate((id) => fetch(`/api/courses/${id}/watched`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ watched: false }),
+  }), withVideo.id);
+});
+
 await step('panel de duraciones en Ajustes', async () => {
   await page.goto(`${base}/#/ajustes`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(900);

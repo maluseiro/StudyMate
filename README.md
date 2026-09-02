@@ -65,6 +65,16 @@ Un reescaneo **nunca pierde nada**: la identidad de una clase es su ruta relativ
 del curso, así que renombrar en la app, el progreso y las notas sobreviven. Lo que
 desaparece del disco se marca, no se borra: si el archivo vuelve, vuelve con sus notas.
 
+## Marcar en bloque
+
+Si ya viste parte de un curso antes de tener StudyMate, marcar de a una clase es
+tedioso. El doble tilde en la cabecera de cada **módulo** lo marca entero (y si ya está
+completo, lo desmarca). En la cabecera del **curso**, "Marcar todo visto" hace lo mismo
+con todas las clases, con una confirmación de por medio.
+
+Ni las notas ni la posición de cada video se tocan: podés marcar un curso entero como
+visto y aun así volver a cualquier clase donde la habías dejado.
+
 ## Buscar
 
 La tecla `/` desde cualquier pantalla abre el buscador. Busca en tres lugares a la vez:

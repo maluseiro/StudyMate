@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { h, icon, cover, statusDot, fmtTime, fmtSize, toast, clear,
+import { h, icon, cover, statusDot, fmtTime, fmtSize, toast, clear, confirmDialog,
          STATUS_LABEL, RESOURCE_META } from '../ui.js';
 import { render } from '../app.js';
 
@@ -167,6 +167,23 @@ function moduleBlock(ctx, module, isOpen) {
         titleNode.textContent = value;
       }); },
     }, icon('pencil', 14)),
+    h('button', {
+      class: `icon-btn ${complete ? 'is-done' : ''}`,
+      title: complete
+        ? 'Desmarcar todo el módulo'
+        : `Marcar las ${module.lessons.length} clases del módulo como vistas`,
+      onclick: async (e) => {
+        e.stopPropagation();
+        try {
+          const r = await api.markModule(module.id, !complete);
+          toast(r.changed
+            ? `${r.changed} ${r.changed === 1 ? 'clase' : 'clases'} ${r.watched ? 'marcadas como vistas' : 'desmarcadas'}`
+            : 'No había nada que cambiar');
+          await ctx.refreshState();
+          render();
+        } catch (err) { toast(err.message, 'bad'); }
+      },
+    }, icon('checkAll', 16, { width: 2 })),
     h('span', { class: 'muted', style: { fontSize: '12.5px' } },
       `${module.lessons.length} ${module.lessons.length === 1 ? 'clase' : 'clases'}${totalSeconds ? ` · ${fmtTime(totalSeconds)}` : ''}`),
     h('span', {
@@ -378,7 +395,29 @@ export async function renderCourse(ctx, id, tab) {
         h('a', {
           class: 'btn', href: `/api/courses/${course.id}/notes.md`, download: '',
           title: 'Baja todas tus notas de este curso en un archivo Markdown',
-        }, icon('download', 14), 'Exportar notas')),
+        }, icon('download', 14), 'Exportar notas'),
+        h('button', {
+          class: 'btn',
+          onclick: async () => {
+            const marcar = course.progress.watched < course.progress.total;
+            const ok = await confirmDialog({
+              title: marcar ? 'Marcar el curso entero como visto' : 'Desmarcar el curso entero',
+              body: marcar
+                ? `Se marcan las ${course.progress.total} clases de "${course.title}". Tus notas y la posición de cada video no se tocan, así que podés volver a cualquiera.`
+                : `Se desmarcan las ${course.progress.watched} clases vistas de "${course.title}". Las notas y las posiciones quedan como están.`,
+              confirmLabel: marcar ? 'Marcar todo' : 'Desmarcar todo',
+              danger: !marcar,
+            });
+            if (!ok) return;
+            try {
+              const r = await api.markCourse(course.id, marcar);
+              toast(`${r.changed} ${r.changed === 1 ? 'clase' : 'clases'} ${marcar ? 'marcadas' : 'desmarcadas'}`);
+              await ctx.refreshState();
+              render();
+            } catch (err) { toast(err.message, 'bad'); }
+          },
+        }, icon('checkAll', 14, { width: 2 }),
+           course.progress.watched < course.progress.total ? 'Marcar todo visto' : 'Desmarcar todo')),
 
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: '7px' } },
         h('div', { style: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px' } },

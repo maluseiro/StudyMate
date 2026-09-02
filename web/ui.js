@@ -61,6 +61,7 @@ const PATHS = {
   trash: '<path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/>',
   external: '<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
   convert: '<path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/>',
+  checkAll: '<path d="M2 13l3.5 3.5L11 11"/><path d="M11 16.5l1.5 1.5L22 8.5"/><path d="M16 7l-3.5 3.5"/>',
   grip: '<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/>',
   download: '<path d="M12 4v12"/><path d="M8 12l4 4 4-4"/><path d="M4 18v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/>',
@@ -230,4 +231,30 @@ export function applyTheme(theme) {
     localStorage.setItem(THEME_KEY, theme);
     document.documentElement.setAttribute('data-theme', theme);
   }
+}
+
+/**
+ * Confirmación para acciones que tocan muchas clases de una. Devuelve una promesa
+ * que resuelve true o false; el <dialog> nativo ya maneja Escape y el foco.
+ */
+export function confirmDialog({ title, body, confirmLabel = 'Confirmar', danger = false }) {
+  return new Promise((resolve) => {
+    let answer = false;
+    const dlg = h('dialog', { style: { width: '460px' } },
+      h('div', { class: 'dialog-head' },
+        h('div', { class: 'grow', style: { display: 'flex', flexDirection: 'column', gap: '4px' } },
+          h('h2', {}, title),
+          h('span', { class: 'subtitle' }, body))),
+      h('div', { class: 'dialog-foot' },
+        h('button', { class: 'btn btn-ghost', onclick: () => dlg.close() }, 'Cancelar'),
+        h('button', {
+          class: danger ? 'btn' : 'btn btn-primary',
+          style: danger ? { background: 'var(--danger)', borderColor: 'var(--danger)', color: '#fff' } : {},
+          onclick: () => { answer = true; dlg.close(); },
+        }, confirmLabel)));
+
+    dlg.addEventListener('close', () => { dlg.remove(); resolve(answer); });
+    document.body.appendChild(dlg);
+    dlg.showModal();
+  });
 }

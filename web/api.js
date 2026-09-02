@@ -34,6 +34,8 @@ export const api = {
   clearCover:   (id) => request('DELETE', `/api/courses/${id}/cover`),
 
   updateModule: (id, patch) => request('PATCH', `/api/modules/${id}`, patch),
+  markModule:   (id, watched) => request('POST', `/api/modules/${id}/watched`, { watched }),
+  markCourse:   (id, watched) => request('POST', `/api/courses/${id}/watched`, { watched }),
   reorderModule:(id, lessonIds) => request('POST', `/api/modules/${id}/reorder`, { lesson_ids: lessonIds }),
   resetOrder:   (id) => request('DELETE', `/api/modules/${id}/reorder`),
 
