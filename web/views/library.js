@@ -89,14 +89,14 @@ export async function renderLibrary(ctx) {
       'Solo entretenimiento'));
 
   return h('main', { class: 'main' },
+    // Sin botones acá: "Agregar curso" vive en la barra superior y las carpetas en
+    // Ajustes. Repetirlos era ruido, y en el celular se veía el doble.
     h('div', { class: 'page-head' },
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: '5px' } },
         h('h1', {}, 'Biblioteca'),
         h('span', { class: 'subtitle' },
-          `${total} ${total === 1 ? 'curso' : 'cursos'} · ${ctx.state.totals.lessons} clases`)),
-      h('div', { style: { display: 'flex', gap: '10px' } },
-        h('button', { class: 'btn', onclick: ctx.openAddRoot }, icon('folder', 15), 'Agregar carpeta'),
-        h('button', { class: 'btn btn-primary', onclick: ctx.openAddCourse }, icon('plus', 15, { width: 2.1 }), 'Agregar curso'))),
+          `${total} ${total === 1 ? 'curso' : 'cursos'} · ${ctx.state.totals.lessons} clases`
+          + (counts.en_curso ? ` · ${counts.en_curso} en curso` : '')))),
 
     continueBlock(ctx, cont),
     chips,
@@ -106,8 +106,12 @@ export async function renderLibrary(ctx) {
       : h('div', { class: 'empty' },
           h('h2', {}, 'No hay cursos con ese filtro'),
           h('p', {}, active === 'todos'
-            ? 'Agregá una carpeta de biblioteca o un curso suelto para empezar.'
-            : 'Probá con otro estado, o sacá el filtro de entretenimiento.')));
+            ? 'Agregá un curso desde la barra de arriba, o una carpeta entera desde Ajustes.'
+            : 'Probá con otro estado, o sacá el filtro de entretenimiento.'),
+          active === 'todos'
+            ? h('button', { class: 'btn btn-primary', onclick: ctx.openAddCourse },
+                icon('plus', 15, { width: 2.1 }), 'Agregar curso')
+            : null));
 }
 
 export async function renderFlagged(ctx) {

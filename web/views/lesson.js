@@ -183,8 +183,11 @@ export async function renderLesson(ctx, id) {
       remaining > 0
         ? h('span', {}, 'Quedan ', h('b', {}, fmtLeft(remaining)), ' · se marca vista al 90%')
         : h('span', {}, 'Se marca vista al 90%'));
+    const label = `${progress.watched}/${progress.total} · ${progress.percent}%`;
     outlineBar.style.width = `${progress.percent}%`;
-    outlineCount.textContent = `${progress.watched}/${progress.total} · ${progress.percent}%`;
+    outlineCount.textContent = label;
+    topbarBar.style.width = `${progress.percent}%`;
+    topbarCount.textContent = label;
   };
   video.addEventListener('timeupdate', () => { paintProgress(); });
 
@@ -300,6 +303,9 @@ export async function renderLesson(ctx, id) {
   const outlineBar = h('i', { style: { width: `${progress.percent}%` } });
   const outlineCount = h('span', { class: 'mono', style: { fontSize: '12px', color: 'var(--ink-2)' } },
     `${progress.watched}/${progress.total} · ${progress.percent}%`);
+  const topbarBar = h('i', { style: { width: `${progress.percent}%` } });
+  const topbarCount = h('span', { class: 'mono', style: { fontSize: '12px', color: 'var(--ink-2)' } },
+    `${progress.watched}/${progress.total} · ${progress.percent}%`);
 
   const outlineList = h('div', { class: 'outline-list' });
   let lastModule = null;
@@ -367,10 +373,17 @@ export async function renderLesson(ctx, id) {
     h('div', { class: 'topbar' },
       h('button', { class: 'btn btn-sm', onclick: () => ctx.go(`/curso/${course.id}`) },
         icon('chevronLeft', 15, { width: 2.2 }), 'Volver al curso'),
-      h('div', { style: { display: 'flex', alignItems: 'center', gap: '9px', minWidth: 0 } },
-        h('div', { class: 'cover', style: { width: '26px', height: '26px', flex: 'none', borderRadius: '6px', background: course.cover_color } }),
-        h('span', { style: { fontFamily: 'var(--display)', fontWeight: 600, fontSize: '14.5px' } }, course.title)),
-      h('div', { class: 'grow' }),
+      h('button', {
+        style: { display: 'flex', alignItems: 'center', gap: '9px', minWidth: 0, flex: 'none' },
+        onclick: () => ctx.go(`/curso/${course.id}`),
+      },
+        h('div', { class: 'cover', style: { width: '46px', height: '26px', flex: 'none', borderRadius: '5px', background: course.cover_color } },
+          course.hasCover ? h('img', { src: `/cover/${course.id}`, alt: '' }) : null),
+        h('span', { style: { fontFamily: 'var(--display)', fontWeight: 600, fontSize: '15px', letterSpacing: '-.015em' } }, course.title)),
+      // El avance del curso, que antes solo se veía en la barra lateral derecha.
+      h('div', { class: 'topbar-progress' },
+        h('div', { class: 'bar' }, topbarBar),
+        topbarCount),
       speedRow),
 
     h('div', { class: 'lesson-cols' },

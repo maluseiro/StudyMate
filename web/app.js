@@ -8,6 +8,9 @@ import { renderSearch } from './views/search.js';
 
 const root = document.getElementById('root');
 
+/** Referencia al campo de la barra, para que la tecla "/" lo enfoque. */
+let searchInput = null;
+
 export const ctx = {
   state: null,
   async refreshState() {
@@ -34,91 +37,69 @@ function parseRoute() {
   return { name: 'library' };
 }
 
+const THEME_ORDER = ['auto', 'light', 'dark'];
+const THEME_ICON = { auto: 'monitor', light: 'sun', dark: 'moon' };
+const THEME_NAME = { auto: 'Tema: sigue al sistema', light: 'Tema: claro', dark: 'Tema: oscuro' };
+
+/** Un solo botón que cicla auto -> claro -> oscuro. El selector completo va en Ajustes. */
+function themeButton() {
+  const paint = (button) => {
+    const theme = currentTheme();
+    button.replaceChildren(icon(THEME_ICON[theme], 17));
+    button.title = THEME_NAME[theme];
+  };
+  const button = h('button', {
+    class: 'icon-btn', 'aria-label': 'Cambiar tema',
+    onclick: () => {
+      applyTheme(THEME_ORDER[(THEME_ORDER.indexOf(currentTheme()) + 1) % THEME_ORDER.length]);
+      paint(button);
+    },
+  });
+  paint(button);
+  return button;
+}
+
 function navItem(label, iconName, active, onClick, count) {
   return h('button', { class: `nav-item ${active ? 'is-active' : ''}`, onclick: onClick },
     icon(iconName, 17),
-    h('span', { class: 'grow' }, label),
+    h('span', { class: 'nav-label' }, label),
     count ? h('span', { class: 'nav-count' }, String(count)) : null);
 }
 
-function themeToggle() {
-  const active = currentTheme();
-  const row = h('div', { class: 'theme-toggle' },
-    ...[['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([value, label]) =>
-      h('button', {
-        class: value === active ? 'is-active' : '',
-        onclick: (e) => {
-          applyTheme(value);
-          row.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
-          e.currentTarget.classList.add('is-active');
-        },
-      }, label)));
-  return row;
-}
-
-function sidebar(route) {
+function appbar(route) {
   const s = ctx.state;
-  return h('aside', { class: 'sidebar' },
-    h('div', { class: 'brand' },
-      h('div', { class: 'brand-mark' }, icon('play', 13, { fill: 'var(--solid-fg)', stroke: 'none' })),
-      h('span', { class: 'brand-name' }, 'StudyMate')),
 
-    h('div', { class: 'search-box' },
-      icon('search', 15),
-      h('input', {
-        type: 'search', placeholder: 'Buscar…  /',
-        onkeydown: (e) => {
-          if (e.key !== 'Enter') return;
-          const q = e.currentTarget.value.trim();
-          if (q) ctx.go('/buscar/' + encodeURIComponent(q));
-        },
-      })),
+  const search = h('input', {
+    type: 'search', placeholder: 'Buscar clases, archivos y tus notas…',
+    value: route.name === 'search' ? (route.q ?? '') : '',
+    onkeydown: (e) => {
+      if (e.key !== 'Enter') return;
+      const q = e.currentTarget.value.trim();
+      if (q) ctx.go('/buscar/' + encodeURIComponent(q));
+    },
+  });
+  searchInput = search;
+
+  return h('header', { class: 'appbar' },
+    h('button', { class: 'brand', onclick: () => ctx.go('/') },
+      h('div', { class: 'brand-mark' }, icon('play', 14, { fill: 'var(--solid-fg)', stroke: 'none' })),
+      h('span', { class: 'brand-name' }, 'StudyMate')),
 
     h('nav', { class: 'nav' },
       navItem('Biblioteca', 'library', route.name === 'library' || route.name === 'course', () => ctx.go('/')),
-      navItem('Buscar', 'search', route.name === 'search', () => ctx.go('/buscar/')),
-      navItem('Volver a esto', 'flag', route.name === 'flagged', () => ctx.go('/marcadas'), s.totals.flagged),
-      navItem('Ajustes', 'gear', route.name === 'settings', () => ctx.go('/ajustes'))),
+      navItem('Volver a esto', 'flag', route.name === 'flagged', () => ctx.go('/marcadas'), s.totals.flagged)),
 
-    h('div', { class: 'side-block' },
-      h('div', { class: 'side-label' }, 'Carpetas de biblioteca'),
-      ...(s.roots.length
-        ? s.roots.map((r) => h('div', { class: 'root-row' },
-            icon('folder', 14, { stroke: 'var(--ink-3)' }),
-            h('span', { class: 'mono grow' }, r.path)))
-        : [h('span', { class: 'mono', style: { fontSize: '11px', color: 'var(--ink-3)' } }, 'Ninguna todavía')]),
-      h('button', { class: 'btn btn-ghost btn-sm', style: { justifyContent: 'flex-start', padding: 0 }, onclick: ctx.openAddRoot },
-        icon('plus', 13, { width: 2.1 }), 'Agregar carpeta')),
+    h('div', { class: 'appbar-search' },
+      h('div', {}, icon('search', 17), search, h('span', { class: 'kbd' }, '/'))),
 
-    h('div', { class: 'grow' }),
-
-    h('div', { class: 'side-block' },
-      h('div', { class: 'side-label' }, 'Tema'),
-      themeToggle()),
-
-    h('div', { class: 'side-foot side-block' },
-      s.lastScan
-        ? h('div', { class: 'mono', style: { fontSize: '10.5px', color: 'var(--ink-3)' } },
-            `Escaneado ${new Date(s.lastScan.at).toLocaleString('es', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`)
-        : null,
+    h('div', { class: 'appbar-actions' },
+      themeButton(),
       h('button', {
-        class: 'btn btn-sm',
-        onclick: async (e) => {
-          const button = e.currentTarget;
-          button.disabled = true;
-          button.textContent = 'Escaneando…';
-          try {
-            const { stats } = await api.scan();
-            await ctx.refreshState();
-            toast(`${stats.courses} cursos · ${stats.lessons} archivos en ${(stats.ms / 1000).toFixed(1)} s`);
-            render();
-          } catch (err) {
-            toast(err.message, 'bad');
-            button.disabled = false;
-            button.textContent = 'Reescanear';
-          }
-        },
-      }, icon('refresh', 14, { width: 1.9 }), 'Reescanear')));
+        class: `icon-btn ${route.name === 'settings' ? 'is-active' : ''}`,
+        title: 'Ajustes', onclick: () => ctx.go('/ajustes'),
+      }, icon('gear', 17)),
+      h('button', { class: 'btn btn-primary', onclick: ctx.openAddCourse },
+        icon('plus', 15, { width: 2.1 }), 'Agregar curso')));
 }
 
 let renderToken = 0;
@@ -151,7 +132,7 @@ export async function render() {
   }
 
   if (!ctx.state.configured) {
-    clear(root).appendChild(h('div', { class: 'app' }, sidebar(route), renderSetup(ctx)));
+    clear(root).appendChild(h('div', { class: 'app' }, appbar(route), renderSetup(ctx)));
     return;
   }
 
@@ -168,16 +149,18 @@ export async function render() {
   }
   if (token !== renderToken) return;
 
-  clear(root).appendChild(h('div', { class: 'app' }, sidebar(route), main));
+  clear(root).appendChild(h('div', { class: 'app' }, appbar(route), main));
   window.scrollTo(0, 0);
 }
 
-// "/" desde cualquier pantalla lleva al buscador, como en tantas apps.
+// "/" enfoca el campo de la barra, como en tantas apps. En la clase no: ahí las
+// teclas son del reproductor.
 document.addEventListener('keydown', (e) => {
   if (e.key !== '/' || e.target.matches('input, textarea, select')) return;
-  if (parseRoute().name === 'lesson') return; // ahí las teclas son del reproductor
+  if (parseRoute().name === 'lesson') return;
   e.preventDefault();
-  ctx.go('/buscar/');
+  if (searchInput?.isConnected) { searchInput.focus(); searchInput.select(); }
+  else ctx.go('/buscar/');
 });
 
 window.addEventListener('hashchange', render);

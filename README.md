@@ -75,9 +75,19 @@ con todas las clases, con una confirmación de por medio.
 Ni las notas ni la posición de cada video se tocan: podés marcar un curso entero como
 visto y aun así volver a cualquier clase donde la habías dejado.
 
+## Cómo está organizada
+
+Una **barra superior** con la navegación, el buscador al centro y las acciones a la
+derecha. No hay barra lateral: lo que no es navegación (carpetas de biblioteca,
+reescanear, tema) vive en **Ajustes**.
+
+La **pantalla de clase** cambia esa barra por una de contexto — volver al curso, qué
+curso es, cuánto llevás y la velocidad. Ahí no se navega ni se busca, y cada píxel de
+alto es video.
+
 ## Buscar
 
-La tecla `/` desde cualquier pantalla abre el buscador. Busca en tres lugares a la vez:
+La tecla `/` desde cualquier pantalla enfoca el buscador de la barra. Busca en tres lugares a la vez:
 el título que le pusiste a cada clase, **el nombre real del archivo en el disco**, y el
 texto de tus notas.
 
@@ -108,8 +118,8 @@ Sin ffprobe, la duración de una clase solo se conoce al abrirla. En **Ajustes**
 
 ## Tema
 
-Claro, oscuro, o **Auto** para seguir al sistema. Se elige abajo en la barra lateral y
-queda guardado en el navegador.
+Claro, oscuro, o **Auto** para seguir al sistema. El botón de la barra superior cicla
+entre los tres; en Ajustes está el selector completo. Queda guardado en el navegador.
 
 ## Atajos en la pantalla de clase
 
@@ -121,7 +131,7 @@ queda guardado en el navegador.
 | `N` `P` | Clase siguiente / anterior |
 | `M` | Marcar vista (o desmarcar) |
 | `F` | Volver a esto |
-| `/` | Buscar (fuera de la pantalla de clase) |
+| `/` | Enfocar el buscador (fuera de la pantalla de clase) |
 
 Al reanudar una clase arranca **5 segundos antes** de donde la dejaste, para que
 recuperes el hilo. Al terminar, la siguiente arranca sola con 5 segundos para cancelar.

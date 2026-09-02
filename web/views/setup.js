@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { h, icon, toast } from '../ui.js';
+import { h, icon, toast, applyTheme, currentTheme } from '../ui.js';
 import { render } from '../app.js';
 
 function dialogShell(title, subtitle, body, actions) {
@@ -256,11 +256,9 @@ function durationsPanel(ctx) {
 export function renderSetup(ctx, { asSettings = false } = {}) {
   const s = ctx.state;
 
-  const rootRows = s.roots.map((root) => h('div', {
-    style: { display: 'flex', alignItems: 'center', gap: '12px', padding: '13px 16px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '10px' },
-  },
+  const rootRows = s.roots.map((root) => h('div', { class: 'root-row' },
     icon('folder', 16, { stroke: 'var(--ink-3)' }),
-    h('span', { class: 'mono grow', style: { fontSize: '12.5px' } }, root.path),
+    h('span', { class: 'mono grow' }, root.path),
     h('button', {
       class: 'icon-btn', title: 'Quitar de la biblioteca',
       onclick: async () => {
@@ -270,16 +268,52 @@ export function renderSetup(ctx, { asSettings = false } = {}) {
       },
     }, icon('trash', 15))));
 
-  return h('main', { class: 'main' },
+  const rescanButton = h('button', {
+    class: 'btn',
+    onclick: async (e) => {
+      const button = e.currentTarget;
+      button.disabled = true;
+      button.replaceChildren(icon('refresh', 15, { width: 1.9 }), 'Escaneando…');
+      try {
+        const { stats } = await api.scan();
+        await ctx.refreshState();
+        toast(`${stats.courses} cursos · ${stats.lessons} archivos en ${(stats.ms / 1000).toFixed(1)} s`);
+        render();
+      } catch (err) {
+        toast(err.message, 'bad');
+        button.disabled = false;
+        button.replaceChildren(icon('refresh', 15, { width: 1.9 }), 'Reescanear todo');
+      }
+    },
+  }, icon('refresh', 15, { width: 1.9 }), 'Reescanear todo');
+
+  const themeRow = h('div', { class: 'segmented' },
+    ...[['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([value, label]) =>
+      h('button', {
+        class: value === currentTheme() ? 'is-active' : '',
+        onclick: (e) => {
+          applyTheme(value);
+          themeRow.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
+          e.currentTarget.classList.add('is-active');
+        },
+      }, label)));
+
+  return h('main', { class: `main ${asSettings ? 'narrow' : ''}` },
     h('div', { class: 'page-head' },
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: '5px' } },
         h('h1', {}, asSettings ? 'Ajustes' : 'Empecemos'),
         h('span', { class: 'subtitle' }, asSettings
-          ? 'Carpetas de la biblioteca y estado del sistema.'
+          ? 'Las carpetas de tu biblioteca, el tema y el estado del sistema.'
           : 'Decile a StudyMate dónde están tus cursos.')),
-      h('div', { style: { display: 'flex', gap: '10px' } },
-        h('button', { class: 'btn', onclick: ctx.openAddCourse }, icon('plus', 15, { width: 2.1 }), 'Agregar un curso suelto'),
-        h('button', { class: 'btn btn-primary', onclick: ctx.openAddRoot }, icon('folder', 15), 'Agregar carpeta'))),
+      h('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap' } },
+        h('button', { class: 'btn', onclick: ctx.openAddCourse }, icon('plus', 15, { width: 2.1 }), 'Curso suelto'),
+        h('button', { class: 'btn', onclick: ctx.openAddRoot }, icon('folder', 15), 'Agregar carpeta'),
+        s.roots.length ? rescanButton : null)),
+
+    asSettings && s.lastScan
+      ? h('span', { class: 'mono muted', style: { fontSize: '12px', marginTop: '-14px' } },
+          `Último escaneo: ${new Date(s.lastScan.at).toLocaleString('es')} · ${s.lastScan.lessons} archivos`)
+      : null,
 
     !s.roots.length
       ? h('div', { class: 'empty' },
@@ -290,7 +324,9 @@ export function renderSetup(ctx, { asSettings = false } = {}) {
       : h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } }, ...rootRows),
 
     asSettings ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' } },
-      h('h2', {}, 'Duraciones'),
+      h('h2', {}, 'Tema'),
+      themeRow,
+      h('h2', { style: { marginTop: '10px' } }, 'Duraciones'),
       durationsPanel(ctx),
       h('h2', { style: { marginTop: '10px' } }, 'Sistema'),
       h('div', { class: s.ffmpeg ? 'note-box note-ok' : 'note-box note-warn' },

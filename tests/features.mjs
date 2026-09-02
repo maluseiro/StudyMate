@@ -41,11 +41,31 @@ await step('el tema arranca en claro', async () => {
   if (bg !== 'rgb(244, 246, 248)') throw new Error('fondo: ' + bg);
 });
 
-await step('el interruptor cambia a oscuro', async () => {
-  await page.locator('.theme-toggle button', { hasText: 'Oscuro' }).click();
+await step('el botón de la barra cicla el tema', async () => {
+  const button = page.locator('[aria-label="Cambiar tema"]');
+  await button.click();                    // auto -> claro
+  await page.waitForTimeout(200);
+  if (await page.evaluate(() => document.documentElement.getAttribute('data-theme')) !== 'light') {
+    throw new Error('no pasó a claro');
+  }
+  await button.click();                    // claro -> oscuro
   await page.waitForTimeout(300);
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   if (bg !== 'rgb(14, 20, 26)') throw new Error('fondo: ' + bg);
+});
+
+await step('el selector de Ajustes también cambia el tema', async () => {
+  await page.goto(`${base}/#/ajustes`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(700);
+  await page.locator('.segmented button', { hasText: 'Claro' }).click();
+  await page.waitForTimeout(250);
+  if (await page.evaluate(() => document.documentElement.getAttribute('data-theme')) !== 'light') {
+    throw new Error('el selector de Ajustes no aplicó');
+  }
+  await page.locator('.segmented button', { hasText: 'Oscuro' }).click();
+  await page.waitForTimeout(250);
+  await page.goto(base, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.card');
 });
 if (shots) await page.screenshot({ path: `${shots}/dark-1-biblioteca.png`, fullPage: true });
 
@@ -80,13 +100,26 @@ await step('el buscador resalta lo que buscaste', async () => {
   if (!(await page.locator('mark').count())) throw new Error('sin <mark>');
 });
 
-await step('la tecla / abre el buscador', async () => {
+await step('la tecla / enfoca el buscador de la barra', async () => {
   await page.goto(base, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.card');
   await page.locator('h1').click();
   await page.keyboard.press('/');
-  await page.waitForTimeout(600);
-  if (!page.url().includes('/buscar')) throw new Error('no navegó: ' + page.url());
+  await page.waitForTimeout(300);
+  const enfocado = await page.evaluate(() => document.activeElement?.closest('.appbar-search') !== null);
+  if (!enfocado) throw new Error('el foco quedó en ' + await page.evaluate(() => document.activeElement?.tagName));
+});
+
+await step('escribir en la barra y dar Enter lleva a los resultados', async () => {
+  await page.keyboard.type('index');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.result-row', { timeout: 5000 });
+  if (!page.url().includes('/buscar/index')) throw new Error('url: ' + page.url());
+});
+
+await step('la barra superior reemplazó a la lateral', async () => {
+  if (await page.locator('.sidebar').count()) throw new Error('quedó la barra lateral');
+  if (!(await page.locator('.appbar').count())) throw new Error('falta la barra superior');
 });
 
 await step('exportar notas descarga un Markdown', async () => {
