@@ -112,7 +112,27 @@ const updateLesson = db.prepare(`
  * reescanear no duplica nada ni pierde progreso, notas ni títulos editados. Lo que
  * ya no está en el disco se marca `missing`, nunca se borra.
  */
-export function scanCourse(course) {
+/**
+ * Agrupa muchas escrituras en una sola transacción. Sin esto, cada INSERT confirma
+ * por su cuenta y un curso de mil archivos tarda segundos en vez de milisegundos.
+ */
+function inTransaction(fn) {
+  db.exec('BEGIN');
+  try {
+    const result = fn();
+    db.exec('COMMIT');
+    return result;
+  } catch (error) {
+    try { db.exec('ROLLBACK'); } catch { /* la transacción ya se cerró sola */ }
+    throw error;
+  }
+}
+
+export function scanCourse(course, { wrap = true } = {}) {
+  return wrap ? inTransaction(() => scanCourseInner(course)) : scanCourseInner(course);
+}
+
+function scanCourseInner(course) {
   if (!fs.existsSync(course.path)) {
     db.prepare('UPDATE courses SET missing = 1 WHERE id = ?').run(course.id);
     return { modules: 0, lessons: 0, missing: true };
@@ -149,17 +169,20 @@ export function scanCourse(course) {
         isTransportStream: ext === '.ts'
           && looksLikeTransportStream(path.resolve(course.path, relPathFor(group.relDir, file.name))),
       });
-      const payload = {
-        course_id: course.id, module_id: moduleId, rel_path: relPath, file_name: file.name,
-        title: cleanTitle(file.name), kind, ext, playable, needs_remux: needsRemux,
-        sort_order: fileIndex, size: file.size,
+      // Cada sentencia recibe exactamente los parámetros que nombra: SQLite rechaza
+      // los de más, así que el INSERT y el UPDATE no comparten el mismo objeto.
+      const common = {
+        module_id: moduleId, file_name: file.name, title: cleanTitle(file.name),
+        kind, ext, playable, needs_remux: needsRemux, sort_order: fileIndex, size: file.size,
       };
       const existing = findLesson.get(course.id, relPath);
       if (existing) {
-        updateLesson.run({ ...payload, id: existing.id });
+        updateLesson.run({ ...common, id: existing.id });
         seenLessons.add(existing.id);
       } else {
-        seenLessons.add(insertLesson.run(payload).lastInsertRowid);
+        seenLessons.add(insertLesson.run({
+          ...common, course_id: course.id, rel_path: relPath,
+        }).lastInsertRowid);
       }
       lessonCount++;
     });
@@ -206,6 +229,7 @@ export function scanLibrary() {
   const roots = db.prepare('SELECT * FROM roots ORDER BY id').all();
   let created = 0;
 
+  inTransaction(() => {
   for (const root of roots) {
     let entries = [];
     try {
@@ -219,15 +243,18 @@ export function scanLibrary() {
       if (result.created) created++;
     }
   }
+  });
 
   const courses = db.prepare('SELECT * FROM courses').all();
   let lessons = 0;
   let missingCourses = 0;
-  for (const course of courses) {
-    const result = scanCourse(course);
-    lessons += result.lessons;
-    if (result.missing) missingCourses++;
-  }
+  inTransaction(() => {
+    for (const course of courses) {
+      const result = scanCourse(course, { wrap: false });
+      lessons += result.lessons;
+      if (result.missing) missingCourses++;
+    }
+  });
 
   const stats = {
     roots: roots.length,

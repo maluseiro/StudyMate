@@ -1,16 +1,19 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const DATA_DIR = path.join(here, '..', 'data');
 export const COVERS_DIR = path.join(DATA_DIR, 'covers');
 fs.mkdirSync(COVERS_DIR, { recursive: true });
 
-export const db = new Database(path.join(DATA_DIR, 'studymate.db'));
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+// SQLite viene dentro de Node desde la 22.5. Usarlo en vez de un módulo nativo deja
+// a la app sin nada que compilar: instalar no necesita Python ni compilador, que es
+// justo lo que no hay en una máquina de trabajo.
+export const db = new DatabaseSync(path.join(DATA_DIR, 'studymate.db'));
+db.exec('PRAGMA journal_mode = WAL');
+db.exec('PRAGMA foreign_keys = ON');
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS settings (

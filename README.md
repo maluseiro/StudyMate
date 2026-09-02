@@ -6,10 +6,16 @@ los videos y recuerda por dónde ibas — en la PC y en el celular.
 La app **nunca escribe en tus carpetas de cursos**: solo las lee. Los títulos que
 editás, el progreso y las notas viven en un SQLite propio, aparte de tus archivos.
 
+## Requisitos
+
+**Node.js 22.5 o más nuevo** ([nodejs.org](https://nodejs.org), versión LTS). Esa es la
+versión desde la que Node trae SQLite adentro, así que la instalación no compila nada:
+no hace falta Python ni compilador de C++. La única dependencia es Express.
+
 ## Arrancar
 
-En Windows, doble clic a **`studymate.bat`**. La primera vez instala las dependencias
-solo; después abre el navegador y listo.
+En Windows, doble clic a **`studymate.bat`**. Comprueba tu versión de Node, instala
+Express la primera vez y abre el navegador.
 
 A mano, en cualquier sistema:
 
@@ -78,7 +84,7 @@ recuperes el hilo. Al terminar, la siguiente arranca sola con 5 segundos para ca
 ```
 server/
   index.js     rutas HTTP
-  db.js        esquema SQLite y migraciones
+  db.js        esquema SQLite y migraciones (node:sqlite, sin módulo nativo)
   scanner.js   recorrido del disco e indexado
   naming.js    limpieza de títulos, orden natural, tipos de archivo
   media.js     streaming con Range, apertura externa, conversión

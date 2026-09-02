@@ -213,8 +213,11 @@ Windows PC
     localhost:4173      192.168.x.x:4173  (celu, misma WiFi)
 ```
 
-**Stack:** Node + Express + better-sqlite3. Dos dependencias. Frontend sin framework y
-sin bundler: se edita un archivo y se recarga.
+**Stack:** Node + Express, y nada más. SQLite viene dentro de Node desde la 22.5, así
+que **no hay ningún módulo nativo que compilar**: instalar no necesita Python ni
+compilador de C++, que es exactamente lo que no hay en una máquina de trabajo con
+permisos restringidos. Frontend sin framework y sin bundler: se edita un archivo y se
+recarga.
 
 **Por qué un proceso local y no una app de escritorio:** para que el celular vea el mismo
 progreso, algo tiene que responder por red. Un proceso Node que abrís y cerrás es lo más
