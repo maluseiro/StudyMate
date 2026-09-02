@@ -1,6 +1,6 @@
 import { api } from '../api.js';
 import { h, icon, statusDot, fmtTime, fmtLeft, fmtSize, toast, debounce, clear,
-         RESOURCE_META } from '../ui.js';
+         coverUrl, RESOURCE_META } from '../ui.js';
 
 const SPEEDS = [1, 1.25, 1.5, 1.75, 2];
 
@@ -378,7 +378,7 @@ export async function renderLesson(ctx, id) {
         onclick: () => ctx.go(`/curso/${course.id}`),
       },
         h('div', { class: 'cover', style: { width: '46px', height: '26px', flex: 'none', borderRadius: '5px', background: course.cover_color } },
-          course.hasCover ? h('img', { src: `/cover/${course.id}`, alt: '' }) : null),
+          course.hasCover ? h('img', { src: coverUrl(course), alt: '' }) : null),
         h('span', { style: { fontFamily: 'var(--display)', fontWeight: 600, fontSize: '15px', letterSpacing: '-.015em' } }, course.title)),
       // El avance del curso, que antes solo se veía en la barra lateral derecha.
       h('div', { class: 'topbar-progress' },

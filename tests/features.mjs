@@ -5,9 +5,19 @@ const shots = process.env.SM_SHOTS ?? null;
 // Elegimos un curso con notas y otro con video, en vez de fijar ids a mano.
 const courses = await fetch(`${base}/api/courses`).then((r) => r.json()).then((d) => d.courses);
 if (!courses.length) { console.error('No hay cursos en la biblioteca.'); process.exit(1); }
-const withVideo = courses.find((c) => c.progress.total > 0) ?? courses[0];
+// Reordenar necesita al menos dos clases en el primer módulo, así que no alcanza
+// con "el primer curso que tenga videos".
+let withVideo = null;
+let detail = null;
+for (const c of courses) {
+  const d = await fetch(`${base}/api/courses/${c.id}`).then((r) => r.json());
+  if (d.modules[0]?.lessons.length >= 2) { withVideo = c; detail = d; break; }
+}
+if (!withVideo) {
+  console.error('Hace falta un curso con dos o más clases en su primer módulo.');
+  process.exit(1);
+}
 const other = courses.find((c) => c.id !== withVideo.id) ?? withVideo;
-const detail = await fetch(`${base}/api/courses/${withVideo.id}`).then((r) => r.json());
 const anyLesson = detail.modules.flatMap((m) => m.lessons).find((l) => l.playable || l.remux_rel);
 if (!anyLesson) { console.error('No hay ninguna clase reproducible.'); process.exit(1); }
 console.log(`  curso ${withVideo.id} · clase ${anyLesson.id}\n`);
@@ -82,16 +92,24 @@ await step('las píldoras de estado se adaptan al tema', async () => {
 });
 
 await step('buscar por título de clase', async () => {
-  await page.goto(`${base}/#/buscar/index`, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.result-row', { timeout: 4000 });
-  const n = await page.locator('.result-row').count();
-  if (n < 2) throw new Error('resultados: ' + n);
+  // Buscamos una palabra tomada de una clase real, no una fija.
+  const palabra = anyLesson.title.split(/\s+/).find((w) => w.length >= 4) ?? anyLesson.title;
+  await page.goto(`${base}/#/buscar/${encodeURIComponent(palabra)}`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.result-row', { timeout: 5000 });
+  if (!(await page.locator('.result-row').count())) throw new Error('sin resultados para ' + palabra);
 });
 if (shots) await page.screenshot({ path: `${shots}/dark-2-buscador.png`, fullPage: true });
 
 await step('buscar dentro de las notas', async () => {
+  // La prueba siembra su propia nota: depender de uno escrito a mano la hacía
+  // fallar contra una biblioteca recién escaneada.
+  await page.evaluate((id) => fetch(`/api/lessons/${id}/notes`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ body: 'Un indice compuesto no sirve para filtrar solo por la segunda columna.' }),
+  }), anyLesson.id);
+
   await page.goto(`${base}/#/buscar/compuesto`, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.note-snippet', { timeout: 4000 });
+  await page.waitForSelector('.note-snippet', { timeout: 5000 });
   const text = await page.locator('.note-snippet').first().textContent();
   if (!text.toLowerCase().includes('compuesto')) throw new Error(text.slice(0, 60));
 });
@@ -260,6 +278,55 @@ await step('marcar en bloque no borra las notas ni la posición', async () => {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ watched: false }),
   }), withVideo.id);
+});
+
+await step('cambiar la portada muestra la nueva, no la anterior', async () => {
+  // Dos imágenes de tamaños distintos para poder distinguirlas por naturalWidth.
+  const hacerPng = (w, h) => page.evaluate(([w, h]) => new Promise((res) => {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const g = c.getContext('2d');
+    g.fillStyle = w > 500 ? '#3355ff' : '#ff3333';
+    g.fillRect(0, 0, w, h);
+    c.toBlob((b) => b.arrayBuffer().then((buf) => res([...new Uint8Array(buf)])), 'image/png');
+  }), [w, h]);
+
+  const subir = async (bytes, id) => page.evaluate(([bytes, id]) => fetch(`/api/courses/${id}/cover`, {
+    method: 'POST', headers: { 'Content-Type': 'image/png' }, body: new Uint8Array(bytes),
+  }).then((r) => r.json()), [bytes, id]);
+
+  const chica = await hacerPng(400, 225);
+  const grande = await hacerPng(800, 450);
+
+  const medir = () => page.evaluate(() => {
+    const img = document.querySelector('.course-hero .cover img');
+    return img && img.complete ? img.naturalWidth : 0;
+  });
+
+  const abrirCurso = async () => {
+    await page.goto(`${base}/#/`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(250);
+    await page.goto(`${base}/#/curso/${other.id}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.course-hero .cover img', { timeout: 5000 });
+    await page.waitForFunction(() => document.querySelector('.course-hero .cover img')?.complete, { timeout: 5000 });
+  };
+
+  await subir(chica, other.id);
+  await abrirCurso();
+  if (await medir() !== 400) throw new Error('la primera portada no se ve: ' + await medir());
+
+  await subir(grande, other.id);
+  await abrirCurso();
+  const ancho = await medir();
+  if (ancho !== 800) throw new Error(`quedó la portada anterior (${ancho} px en vez de 800)`);
+
+  // Y de vuelta a la chica, que es donde la caché suele traicionar.
+  await subir(chica, other.id);
+  await abrirCurso();
+  const vuelta = await medir();
+  if (vuelta !== 400) throw new Error(`al volver quedó la anterior (${vuelta} px en vez de 400)`);
+
+  await page.evaluate((id) => fetch(`/api/courses/${id}/cover`, { method: 'DELETE' }), other.id);
 });
 
 await step('panel de duraciones en Ajustes', async () => {

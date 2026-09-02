@@ -159,13 +159,21 @@ export const RESOURCE_META = {
 };
 
 /** Portada del curso: la imagen que subiste, o el color y monograma generados. */
+/**
+ * URL de la portada con su marca de versión. Un solo lugar: antes cada vista la
+ * armaba a mano y dos de las tres no llevaban versión.
+ */
+export function coverUrl(course) {
+  return `/cover/${course.id}?v=${course.coverVersion ?? 0}`;
+}
+
 export function cover(course, { height, width, progress = true, play = false, flag = false } = {}) {
   const node = h('div', { class: 'cover', style: { background: course.cover_color } });
   if (width) node.style.width = typeof width === 'number' ? `${width}px` : width;
   if (height) node.style.height = typeof height === 'number' ? `${height}px` : height;
 
   if (course.hasCover) {
-    node.appendChild(h('img', { src: `/cover/${course.id}?v=${course.id}`, alt: '', loading: 'lazy' }));
+    node.appendChild(h('img', { src: coverUrl(course), alt: '', loading: 'lazy' }));
   } else {
     const size = Math.max(28, Math.round((typeof height === 'number' ? height : 141) * 0.47));
     node.appendChild(h('span', {

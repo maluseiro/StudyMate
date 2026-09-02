@@ -28,6 +28,20 @@ function courseProgress(courseId) {
   return { total, watched, percent: total ? Math.round((watched / total) * 100) : 0 };
 }
 
+/**
+ * Marca de versión de la portada: la fecha del archivo. Va en la URL para que el
+ * navegador pida la imagen nueva cuando la cambiás. Sin esto la URL era siempre la
+ * misma y la caché seguía mostrando la anterior.
+ */
+function coverVersion(course) {
+  if (!course.cover_file) return 0;
+  try {
+    return Math.round(fs.statSync(path.join(COVERS_DIR, course.cover_file)).mtimeMs);
+  } catch {
+    return 0;
+  }
+}
+
 function decorateCourse(course) {
   const progress = courseProgress(course.id);
   const counts = db.prepare(`
@@ -41,6 +55,7 @@ function decorateCourse(course) {
     ...course,
     monogram: monogram(course.title),
     hasCover: Boolean(course.cover_file),
+    coverVersion: coverVersion(course),
     progress,
     modules: counts.modules,
     resources: counts.resources,
@@ -271,6 +286,9 @@ app.delete('/api/courses/:id/cover', wrap((req, res) => {
 app.get('/cover/:id', wrap((req, res) => {
   const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
   if (!course?.cover_file) return res.sendStatus(404);
+  // Revalidar siempre: la portada se reemplaza en el lugar y el navegador no tiene
+  // forma de enterarse solo.
+  res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(COVERS_DIR, course.cover_file));
 }));
 
@@ -558,7 +576,10 @@ app.get('/api/search', wrap((req, res) => {
     SELECT id, title, cover_color, cover_file, status, kind FROM courses
     WHERE missing = 0 AND title LIKE ? ESCAPE '\\'
     ORDER BY title COLLATE NOCASE LIMIT 12
-  `).all(like).map((c) => ({ ...c, monogram: monogram(c.title), hasCover: Boolean(c.cover_file) }));
+  `).all(like).map((c) => ({
+    ...c, monogram: monogram(c.title),
+    hasCover: Boolean(c.cover_file), coverVersion: coverVersion(c),
+  }));
 
   const lessons = db.prepare(`
     SELECT l.id, l.title, l.file_name, l.kind, l.watched, l.duration,

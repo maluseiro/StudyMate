@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { h, icon, clear, debounce, fmtTime, statusPill, RESOURCE_META } from '../ui.js';
+import { h, icon, clear, debounce, fmtTime, statusPill, coverUrl, RESOURCE_META } from '../ui.js';
 
 function miniCover(color, mono) {
   return h('div', {
@@ -72,7 +72,7 @@ export async function renderSearch(ctx, initialQuery) {
       },
         c.hasCover
           ? h('div', { class: 'cover', style: { width: '54px', height: '31px', flex: 'none', borderRadius: '5px' } },
-              h('img', { src: `/cover/${c.id}`, alt: '' }))
+              h('img', { src: coverUrl(c), alt: '' }))
           : miniCover(c.cover_color, c.monogram),
         h('div', { class: 'grow' }, highlight(c.title, data.q)),
         statusPill(c.status)))));
