@@ -1,0 +1,109 @@
+# StudyMate
+
+Biblioteca personal de cursos respaldados. Indexa las carpetas de tu disco, reproduce
+los videos y recuerda por dónde ibas — en la PC y en el celular.
+
+La app **nunca escribe en tus carpetas de cursos**: solo las lee. Los títulos que
+editás, el progreso y las notas viven en un SQLite propio, aparte de tus archivos.
+
+## Arrancar
+
+En Windows, doble clic a **`studymate.bat`**. La primera vez instala las dependencias
+solo; después abre el navegador y listo.
+
+A mano, en cualquier sistema:
+
+```
+npm install
+npm start
+```
+
+Queda en `http://localhost:4173`.
+
+### Desde el celular
+
+Al arrancar, la consola imprime la dirección de tu PC en la red local
+(`http://192.168.x.x:4173`). Entrá ahí desde el celular con la misma WiFi y vas a ver
+el mismo progreso: se guarda en la PC, no en el navegador.
+
+La primera vez, **Windows va a pedir permiso de red**: aceptá "redes privadas" o el
+celular no va a poder entrar.
+
+## Formatos de video
+
+| Formato | Qué pasa |
+|---------|----------|
+| `.mp4`, `.m4v`, `.webm` | Se reproducen directo |
+| `.mov` | Se intenta; si el códec no va, cae al mismo camino que los de abajo |
+| `.mkv`, `.ts`, `.avi`, `.wmv` | El navegador no los abre. La clase ofrece **Convertir a MP4** o abrirlos con VLC |
+
+**Convertir a MP4** no recomprime nada: cambia el envase con `ffmpeg -c copy`, así que
+es rápido y no pierde calidad. El archivo original queda intacto; la copia va a una
+subcarpeta `.studymate/` que el escáner ignora, así el curso no queda duplicado.
+
+Para que aparezca ese botón necesitás [ffmpeg](https://ffmpeg.org/download.html) en el
+PATH. Sin ffmpeg, esas clases solo se pueden abrir con un reproductor externo.
+
+## Cómo arma el índice
+
+- Cada **carpeta de biblioteca** que agregás se recorre, y cada subcarpeta directa es un
+  **curso**.
+- Dentro de un curso, cada subcarpeta es un **módulo**; los archivos sueltos de la raíz
+  van a un módulo "General".
+- Los videos son **clases**; los PDFs, imágenes, código y comprimidos van a **Recursos**.
+- El orden sale del número que traiga el nombre del archivo (`2` antes que `10`).
+- `.ts` se resuelve mirando la firma binaria del archivo: si es MPEG-TS es video, si no
+  es TypeScript y va a Recursos.
+
+Un reescaneo **nunca pierde nada**: la identidad de una clase es su ruta relativa dentro
+del curso, así que renombrar en la app, el progreso y las notas sobreviven. Lo que
+desaparece del disco se marca, no se borra: si el archivo vuelve, vuelve con sus notas.
+
+## Atajos en la pantalla de clase
+
+| Tecla | Acción |
+|-------|--------|
+| `Espacio` | Pausa y reanuda |
+| `←` `→` | 5 segundos atrás / adelante |
+| `J` `L` | 10 segundos atrás / adelante |
+| `N` `P` | Clase siguiente / anterior |
+| `M` | Marcar vista (o desmarcar) |
+| `F` | Volver a esto |
+
+Al reanudar una clase arranca **5 segundos antes** de donde la dejaste, para que
+recuperes el hilo. Al terminar, la siguiente arranca sola con 5 segundos para cancelar.
+
+## Estructura
+
+```
+server/
+  index.js     rutas HTTP
+  db.js        esquema SQLite y migraciones
+  scanner.js   recorrido del disco e indexado
+  naming.js    limpieza de títulos, orden natural, tipos de archivo
+  media.js     streaming con Range, apertura externa, conversión
+web/           interfaz: HTML, CSS y JS sin build step
+data/          la base y las portadas (no se versiona)
+tests/
+  browser.mjs  pruebas de punta a punta
+```
+
+No hay bundler ni framework: se edita un archivo y se recarga la página.
+
+## Pruebas
+
+Necesitan Playwright y una biblioteca de prueba con videos:
+
+```
+npm install -D playwright
+node tests/browser.mjs
+```
+
+Esperan un servidor corriendo en `localhost:4173`. Los identificadores de clase que usan
+están al principio del archivo.
+
+## Lo que no hace
+
+No se expone a internet ni tiene usuarios. No descarga cursos. No recomprime video. No
+sincroniza con la nube: si querés tus notas afuera, la exportación a Markdown está en la
+lista de lo que sigue.
