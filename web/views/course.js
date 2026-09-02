@@ -123,13 +123,39 @@ function moduleBlock(ctx, module, isOpen) {
   const complete = module.lessons.length > 0 && watched === module.lessons.length;
 
   const titleNode = h('span', { class: 'module-title' }, module.title);
+  const chevron = icon(isOpen ? 'chevronDown' : 'chevronRight', 15, { width: 2.2 });
 
-  const head = h('button', { class: 'module-head', onclick: () => {
-    if (openModules.has(module.id)) openModules.delete(module.id);
-    else openModules.add(module.id);
-    render();
-  } },
-    icon(isOpen ? 'chevronDown' : 'chevronRight', 15, { width: 2.2 }),
+  // Abrir y cerrar es local: redibujar la página entera en cada clic hacía que un
+  // curso de 33 módulos se sintiera pesado, y encima volvía a pedir el curso al
+  // servidor. Las filas se construyen la primera vez que se abre el módulo.
+  const body = h('div', { class: isOpen ? '' : 'hidden' });
+  let built = false;
+  const buildRows = () => {
+    if (built) return;
+    built = true;
+    module.lessons.forEach((l, i) => body.appendChild(lessonRow(ctx, l, i)));
+    makeSortable(body, module);
+  };
+  if (isOpen) buildRows();
+
+  const toggle = () => {
+    const open = !openModules.has(module.id);
+    if (open) { openModules.add(module.id); buildRows(); }
+    else openModules.delete(module.id);
+    wrapper.classList.toggle('is-open', open);
+    body.classList.toggle('hidden', !open);
+    foot?.classList.toggle('hidden', !open);
+    // Hay que reemplazar la flecha que está en el DOM ahora, no la original: en el
+    // segundo clic esa ya no es hija de nadie.
+    const next = icon(open ? 'chevronDown' : 'chevronRight', 15, { width: 2.2 });
+    currentChevron.replaceWith(next);
+    currentChevron = next;
+  };
+
+  let currentChevron = chevron;
+
+  const head = h('button', { class: 'module-head', onclick: toggle },
+    chevron,
     h('div', { class: 'grow', style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
       titleNode,
       module.folder_name !== module.title ? h('span', { class: 'module-file' }, module.folder_name) : null),
@@ -150,17 +176,8 @@ function moduleBlock(ctx, module, isOpen) {
         : (watched ? { background: 'var(--accent-soft)', color: 'var(--accent-ink)' } : { background: 'var(--surface-2)', color: 'var(--ink-3)' }),
     }, complete ? icon('check', 11, { width: 3 }) : null, `${watched}/${module.lessons.length}`));
 
-  let list = null;
-  if (isOpen) {
-    list = h('div', {}, ...module.lessons.map((l, i) => lessonRow(ctx, l, i)));
-    makeSortable(list, module);
-  }
-
-  return h('div', { class: `module ${isOpen ? 'is-open' : ''}` },
-    head,
-    list,
-    isOpen && module.order_edited
-      ? h('div', { class: 'module-foot' },
+  const foot = module.order_edited
+      ? h('div', { class: `module-foot ${isOpen ? '' : 'hidden'}` },
           icon('pencil', 12, { stroke: 'var(--ink-3)' }),
           h('span', { class: 'grow' }, 'Ordenado a mano. Las clases nuevas se agregan al final.'),
           h('button', {
@@ -173,7 +190,10 @@ function moduleBlock(ctx, module, isOpen) {
               } catch (err) { toast(err.message, 'bad'); }
             },
           }, 'Volver al orden original'))
-      : null);
+      : null;
+
+  const wrapper = h('div', { class: `module ${isOpen ? 'is-open' : ''}` }, head, body, foot);
+  return wrapper;
 }
 
 // ---------------------------------------------------------------- recursos

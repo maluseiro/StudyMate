@@ -7,7 +7,17 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2316233A'/><path d='M12 9v14l11-7z' fill='%23fff'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <!--
+    Las tipografías se cargan sin bloquear el dibujado: media="print" hace que el
+    navegador no espere por ellas, y onload la promueve a la hoja real cuando llega.
+    StudyMate corre en tu PC, y una hoja externa que no responde (sin internet, o con
+    una red que bloquee Google) congelaba la app hasta que expiraba la espera. Así,
+    la interfaz aparece al instante con las tipografías del sistema y se cambia sola
+    si las otras llegan.
+  -->
+  <link rel="stylesheet" media="print" onload="this.media='all'; this.onload=null"
+        href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
   <link rel="stylesheet" href="/styles.css">
   <script>
     // Antes de pintar nada: si elegiste un tema a mano, se aplica ya. Si esto

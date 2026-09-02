@@ -19,6 +19,15 @@ page.on('pageerror', (e) => errors.push(e.message));
 page.on('console', (m) => { if (m.type() === 'error' && !m.text().includes('ERR_CONNECTION')) errors.push('console: ' + m.text()); });
 
 let pass = 0, fail = 0;
+
+/** Abre el módulo n solo si está cerrado: al entrar al curso ya viene uno abierto. */
+const ensureOpen = async (index = 0) => {
+  const module = page.locator('.module').nth(index);
+  if (!(await module.evaluate((el) => el.classList.contains('is-open')))) {
+    await module.locator('.module-head').click();
+  }
+  await page.waitForTimeout(350);
+};
 const step = async (name, fn) => {
   try { await fn(); pass++; console.log('  ok    ' + name); }
   catch (e) { fail++; console.log('  FALLA ' + name + ' :: ' + String(e.message).split('\n')[0]); }
@@ -94,9 +103,8 @@ await step('exportar notas descarga un Markdown', async () => {
 await step('reordenar arrastrando guarda el orden', async () => {
   await page.goto(`${base}/#/curso/${withVideo.id}`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.module-head');
-  await page.locator('.module-head').first().click();
-  await page.waitForTimeout(400);
-  const rows = page.locator('.module.is-open .lesson-row');
+  await ensureOpen(0);
+  const rows = page.locator('.module').first().locator('.lesson-row');
   const before = await rows.first().getAttribute('data-lesson-id');
   const secondId = await rows.nth(1).getAttribute('data-lesson-id');
 
@@ -125,13 +133,13 @@ await step('el módulo queda marcado como ordenado a mano', async () => {
   await page.waitForTimeout(400);
   await page.goto(`${base}/#/curso/${withVideo.id}`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.module-head');
-  await page.locator('.module-head').first().click();
-  await page.waitForTimeout(500);
-  if (!(await page.locator('.module-foot').count())) throw new Error('sin aviso de orden manual');
+  await ensureOpen(0);
+  const visible = await page.locator('.module-foot:not(.hidden)').count();
+  if (!visible) throw new Error('sin aviso de orden manual');
 });
 
 await step('volver al orden original', async () => {
-  await page.locator('.module-foot button').click();
+  await page.locator('.module-foot:not(.hidden) button').click();
   await page.waitForTimeout(1200);
   const edited = await page.evaluate((id) => fetch(`/api/courses/${id}`).then((r) => r.json())
     .then((d) => d.modules[0].order_edited), withVideo.id);
