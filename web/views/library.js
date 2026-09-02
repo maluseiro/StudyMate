@@ -27,7 +27,7 @@ function courseCard(ctx, course) {
       h('div', { class: 'card-meta' }, meta),
       h('div', { class: 'card-foot' },
         course.kind === 'entretenimiento'
-          ? h('span', { class: 'pill', style: { border: '1px dashed #C3CBD6', color: 'var(--ink-2)' } }, 'Entretenimiento')
+          ? h('span', { class: 'pill', style: { border: '1px dashed var(--ring-empty)', color: 'var(--ink-2)' } }, 'Entretenimiento')
           : statusPill(course.status),
         h('span', { class: 'pill-count mono' },
           course.progress.total
@@ -121,7 +121,7 @@ export async function renderFlagged(ctx) {
     h('div', { class: 'grow', style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
       h('span', { class: 'lesson-title' }, lesson.title),
       h('span', { class: 'muted', style: { fontSize: '12.5px' } }, `${lesson.course_title} · ${lesson.module_title}`)),
-    icon('flag', 16, { fill: '#E8720C', stroke: '#E8720C' })));
+    icon('flag', 16, { fill: 'var(--accent)', stroke: 'var(--accent)' })));
 
   return h('main', { class: 'main' },
     h('div', { class: 'page-head' },
@@ -131,7 +131,7 @@ export async function renderFlagged(ctx) {
     lessons.length
       ? h('div', {}, ...rows)
       : h('div', { class: 'empty' },
-          icon('flag', 32, { stroke: '#C3CBD6' }),
+          icon('flag', 32, { stroke: 'var(--ring-empty)' }),
           h('h2', {}, 'Nada marcado todavía'),
           h('p', {}, 'Mientras mirás una clase, tocá "Volver a esto" para dejarla acá y encontrarla después.')));
 }

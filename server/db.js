@@ -104,6 +104,7 @@ function ensureColumn(table, column, ddl) {
 }
 
 ensureColumn('lessons', 'remux_rel', 'remux_rel TEXT');
+ensureColumn('modules', 'order_edited', 'order_edited INTEGER NOT NULL DEFAULT 0');
 ensureColumn('lessons', 'needs_remux', 'needs_remux INTEGER NOT NULL DEFAULT 0');
 ensureColumn('courses', 'cover_file', 'cover_file TEXT');
 ensureColumn('courses', 'speed', 'speed REAL NOT NULL DEFAULT 1');

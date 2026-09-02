@@ -6,7 +6,8 @@ import express from 'express';
 
 import { db, COVERS_DIR, STATUSES, KINDS, getSetting, setSetting, progressFor, nextLessonFor } from './db.js';
 import { scanLibrary, scanCourse, registerCourse } from './scanner.js';
-import { resolveLessonFile, lessonWithCourse, openExternally, ffmpegAvailable, remuxLesson, mimeFor } from './media.js';
+import { resolveLessonFile, lessonWithCourse, openExternally, ffmpegAvailable, remuxLesson,
+         mimeFor, probeDuration, extractFrame } from './media.js';
 import { monogram, cleanFolderTitle, COVER_COLORS } from './naming.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -419,6 +420,223 @@ app.post('/api/lessons/:id/remux', wrap(async (req, res) => {
   const result = await remuxLesson(found.lesson, found.course);
   if (!result.ok) return fail(res, 500, result.error);
   res.json({ ...result, lesson: db.prepare('SELECT * FROM lessons WHERE id = ?').get(found.lesson.id) });
+}));
+
+// ---------------------------------------------------------------- reordenar
+
+/**
+ * Guarda el orden manual de un módulo. A partir de acá el escaneo no vuelve a
+ * ordenarlo por nombre de archivo: las clases nuevas se agregan al final.
+ */
+app.post('/api/modules/:id/reorder', wrap((req, res) => {
+  const module = db.prepare('SELECT * FROM modules WHERE id = ?').get(req.params.id);
+  if (!module) return fail(res, 404, 'Ese módulo ya no existe.');
+
+  const ids = Array.isArray(req.body?.lesson_ids) ? req.body.lesson_ids.map(Number) : null;
+  if (!ids?.length) return fail(res, 400, 'Falta el orden de las clases.');
+
+  const belong = new Set(
+    db.prepare('SELECT id FROM lessons WHERE module_id = ?').all(module.id).map((r) => r.id)
+  );
+  if (ids.some((id) => !belong.has(id))) {
+    return fail(res, 400, 'Alguna de esas clases no es de este módulo.');
+  }
+
+  const setOrder = db.prepare('UPDATE lessons SET sort_order = ? WHERE id = ?');
+  db.exec('BEGIN');
+  try {
+    ids.forEach((id, index) => setOrder.run(index, id));
+    db.prepare('UPDATE modules SET order_edited = 1 WHERE id = ?').run(module.id);
+    db.exec('COMMIT');
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  }
+  res.json({ ok: true });
+}));
+
+/** Vuelve al orden que sale del nombre de los archivos. */
+app.delete('/api/modules/:id/reorder', wrap((req, res) => {
+  const module = db.prepare('SELECT * FROM modules WHERE id = ?').get(req.params.id);
+  if (!module) return fail(res, 404, 'Ese módulo ya no existe.');
+  db.prepare('UPDATE modules SET order_edited = 0 WHERE id = ?').run(module.id);
+  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(module.course_id);
+  scanCourse(course);
+  res.json({ ok: true });
+}));
+
+// ---------------------------------------------------------------- exportar notas
+
+
+app.get('/api/courses/:id/notes.md', wrap((req, res) => {
+  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
+  if (!course) return fail(res, 404, 'Ese curso no está en la biblioteca.');
+
+  const rows = db.prepare(`
+    SELECT n.body, l.title AS lesson_title, l.duration, m.title AS module_title,
+           m.sort_order AS module_order, l.sort_order AS lesson_order
+    FROM notes n
+    JOIN lessons l ON l.id = n.lesson_id
+    JOIN modules m ON m.id = l.module_id
+    WHERE l.course_id = ? AND TRIM(n.body) <> ''
+    ORDER BY m.sort_order, l.sort_order
+  `).all(course.id);
+
+  const lines = [`# ${course.title}`, ''];
+  if (rows.length === 0) {
+    lines.push('_Todavía no hay notas en este curso._', '');
+  } else {
+    lines.push(`_${rows.length} ${rows.length === 1 ? 'clase con notas' : 'clases con notas'}._`, '');
+    let currentModule = null;
+    for (const row of rows) {
+      if (row.module_title !== currentModule) {
+        currentModule = row.module_title;
+        lines.push(`## ${currentModule}`, '');
+      }
+      lines.push(`### ${row.lesson_title}`, '');
+      lines.push(row.body.trim(), '');
+    }
+  }
+
+  const fileName = `${course.title.replace(/[<>:"/\\|?*]/g, '-').slice(0, 80)} - notas.md`;
+  res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`);
+  res.send(lines.join('\n'));
+}));
+
+// ---------------------------------------------------------------- buscador
+
+/** Un fragmento del texto alrededor de lo que buscaste, para no mostrar la nota entera. */
+function snippet(text, needle, radius = 70) {
+  const at = text.toLowerCase().indexOf(needle.toLowerCase());
+  if (at === -1) return text.slice(0, radius * 2).trim();
+  const from = Math.max(0, at - radius);
+  const to = Math.min(text.length, at + needle.length + radius);
+  return (from > 0 ? '…' : '') + text.slice(from, to).trim() + (to < text.length ? '…' : '');
+}
+
+app.get('/api/search', wrap((req, res) => {
+  const q = String(req.query.q ?? '').trim();
+  if (q.length < 2) return res.json({ q, courses: [], lessons: [], notes: [] });
+  const like = `%${q.replace(/[%_]/g, (c) => '\\' + c)}%`;
+
+  const courses = db.prepare(`
+    SELECT id, title, cover_color, cover_file, status, kind FROM courses
+    WHERE missing = 0 AND title LIKE ? ESCAPE '\\'
+    ORDER BY title COLLATE NOCASE LIMIT 12
+  `).all(like).map((c) => ({ ...c, monogram: monogram(c.title), hasCover: Boolean(c.cover_file) }));
+
+  const lessons = db.prepare(`
+    SELECT l.id, l.title, l.file_name, l.kind, l.watched, l.duration,
+           c.id AS course_id, c.title AS course_title, c.cover_color, m.title AS module_title
+    FROM lessons l
+    JOIN courses c ON c.id = l.course_id
+    JOIN modules m ON m.id = l.module_id
+    WHERE l.missing = 0 AND (l.title LIKE ? ESCAPE '\\' OR l.file_name LIKE ? ESCAPE '\\')
+    ORDER BY c.title COLLATE NOCASE, m.sort_order, l.sort_order
+    LIMIT 60
+  `).all(like, like);
+
+  const notes = db.prepare(`
+    SELECT n.body, l.id, l.title, c.id AS course_id, c.title AS course_title,
+           c.cover_color, m.title AS module_title
+    FROM notes n
+    JOIN lessons l ON l.id = n.lesson_id
+    JOIN courses c ON c.id = l.course_id
+    JOIN modules m ON m.id = l.module_id
+    WHERE l.missing = 0 AND n.body LIKE ? ESCAPE '\\'
+    ORDER BY c.title COLLATE NOCASE, m.sort_order, l.sort_order
+    LIMIT 40
+  `).all(like).map((n) => ({ ...n, snippet: snippet(n.body, q) }));
+
+  res.json({ q, courses, lessons, notes });
+}));
+
+// ---------------------------------------------------------------- duraciones
+
+/**
+ * Sin ffprobe la duración solo se conoce al abrir la clase. Este trabajo la completa
+ * de a poco en segundo plano; el cliente pregunta cómo viene.
+ */
+const durationJob = { running: false, done: 0, total: 0, updated: 0, failed: 0, error: null };
+
+app.get('/api/durations/status', wrap((req, res) => {
+  const pending = db.prepare(
+    "SELECT COUNT(*) AS n FROM lessons WHERE kind = 'video' AND missing = 0 AND duration IS NULL"
+  ).get().n;
+  res.json({ ...durationJob, pending });
+}));
+
+app.post('/api/durations/scan', wrap(async (req, res) => {
+  if (durationJob.running) return res.json({ ...durationJob, alreadyRunning: true });
+  if (!(await ffmpegAvailable())) {
+    return fail(res, 400, 'Hace falta ffmpeg (viene con ffprobe) para leer las duraciones.');
+  }
+
+  const pending = db.prepare(`
+    SELECT l.id, l.rel_path, l.remux_rel, c.path AS course_path
+    FROM lessons l JOIN courses c ON c.id = l.course_id
+    WHERE l.kind = 'video' AND l.missing = 0 AND l.duration IS NULL
+  `).all();
+
+  Object.assign(durationJob, { running: true, done: 0, total: pending.length, updated: 0, failed: 0, error: null });
+  res.json({ ...durationJob, started: true });
+
+  const save = db.prepare('UPDATE lessons SET duration = ? WHERE id = ?');
+  const WORKERS = 4;
+  let cursor = 0;
+
+  const worker = async () => {
+    while (cursor < pending.length) {
+      const item = pending[cursor++];
+      const abs = resolveLessonFile(
+        { rel_path: item.rel_path, remux_rel: item.remux_rel },
+        { path: item.course_path }
+      );
+      const seconds = abs ? await probeDuration(abs) : null;
+      if (seconds) { save.run(seconds, item.id); durationJob.updated++; }
+      else durationJob.failed++;
+      durationJob.done++;
+    }
+  };
+
+  try {
+    await Promise.all(Array.from({ length: WORKERS }, worker));
+  } catch (error) {
+    durationJob.error = error.message;
+  } finally {
+    durationJob.running = false;
+  }
+}));
+
+// ---------------------------------------------------------------- portada por fotograma
+
+app.post('/api/courses/:id/cover/frame', wrap(async (req, res) => {
+  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(req.params.id);
+  if (!course) return fail(res, 404, 'Ese curso no está en la biblioteca.');
+  if (!(await ffmpegAvailable())) return fail(res, 400, 'Hace falta ffmpeg para sacar el fotograma.');
+
+  const source = req.body?.lesson_id
+    ? db.prepare("SELECT * FROM lessons WHERE id = ? AND course_id = ?").get(req.body.lesson_id, course.id)
+    : db.prepare(`
+        SELECT l.* FROM lessons l JOIN modules m ON m.id = l.module_id
+        WHERE l.course_id = ? AND l.kind = 'video' AND l.missing = 0
+        ORDER BY m.sort_order, l.sort_order LIMIT 1
+      `).get(course.id);
+  if (!source) return fail(res, 400, 'Este curso no tiene ninguna clase de video.');
+
+  const abs = resolveLessonFile(source, course);
+  if (!abs || !fs.existsSync(abs)) return fail(res, 404, 'El archivo de esa clase no está en el disco.');
+
+  const name = `${course.id}.jpg`;
+  const ok = await extractFrame(abs, path.join(COVERS_DIR, name), source.duration);
+  if (!ok) return fail(res, 500, 'ffmpeg no pudo sacar un fotograma de ese archivo.');
+
+  if (course.cover_file && course.cover_file !== name) {
+    try { fs.unlinkSync(path.join(COVERS_DIR, course.cover_file)); } catch { /* ya no estaba */ }
+  }
+  db.prepare('UPDATE courses SET cover_file = ? WHERE id = ?').run(name, course.id);
+  res.json({ ok: true, from: source.title });
 }));
 
 // ---------------------------------------------------------------- archivos

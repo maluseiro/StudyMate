@@ -61,6 +61,9 @@ const PATHS = {
   trash: '<path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/>',
   external: '<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
   convert: '<path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/>',
+  grip: '<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/>',
+  download: '<path d="M12 4v12"/><path d="M8 12l4 4 4-4"/><path d="M4 18v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/>',
   eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/>',
 };
 
@@ -70,14 +73,16 @@ export function icon(name, size = 16, extra = {}) {
   svg.setAttribute('width', size);
   svg.setAttribute('height', size);
   svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', extra.stroke ?? 'currentColor');
+  svg.setAttribute('stroke', 'currentColor');
   svg.setAttribute('stroke-width', extra.width ?? 1.8);
   svg.setAttribute('stroke-linecap', 'round');
   svg.setAttribute('stroke-linejoin', 'round');
   svg.setAttribute('aria-hidden', 'true');
   svg.style.flex = 'none';
   svg.innerHTML = PATHS[name] ?? '';
-  if (extra.fill) svg.setAttribute('fill', extra.fill);
+  // Como estilo y no como atributo: un atributo de presentación no resuelve var().
+  if (extra.stroke) svg.style.stroke = extra.stroke;
+  if (extra.fill) svg.style.fill = extra.fill;
   return svg;
 }
 
@@ -89,11 +94,11 @@ export function statusDot(lesson, current = false) {
   svg.setAttribute('height', 18);
   svg.style.flex = 'none';
   if (current) {
-    svg.innerHTML = '<circle cx="12" cy="12" r="9.5" fill="#E8720C"/><path d="M10 8.6v6.8l5.6-3.4z" fill="#fff"/>';
+    svg.innerHTML = '<circle cx="12" cy="12" r="9.5" style="fill: var(--accent)"/><path d="M10 8.6v6.8l5.6-3.4z" style="fill: #fff"/>';
   } else if (lesson.watched) {
-    svg.innerHTML = '<circle cx="12" cy="12" r="9.5" fill="#E4F1EA"/><path d="M16.5 9.5L10.8 15.2 7.8 12.2" fill="none" stroke="#2E7D5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    svg.innerHTML = '<circle cx="12" cy="12" r="9.5" style="fill: var(--st-done-bg)"/><path d="M16.5 9.5L10.8 15.2 7.8 12.2" style="fill: none; stroke: var(--st-done-fg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
   } else {
-    svg.innerHTML = '<circle cx="12" cy="12" r="8.8" fill="none" stroke="#D8DFE7" stroke-width="1.9"/>';
+    svg.innerHTML = '<circle cx="12" cy="12" r="8.8" style="fill: none; stroke: var(--ring-empty)" stroke-width="1.9"/>';
   }
   return svg;
 }
@@ -135,18 +140,18 @@ export const STATUS_LABEL = {
 };
 
 export const STATUS_COLOR = {
-  sin_empezar: { dot: '#C3CBD6', bg: '#F1F4F8', fg: '#8B97A9' },
-  en_curso: { dot: '#E8720C', bg: '#FDEEE0', fg: '#B85A0D' },
-  en_pausa: { dot: '#7E8CA3', bg: '#EDF1F5', fg: '#56647D' },
-  terminado: { dot: '#2E7D5B', bg: '#E4F1EA', fg: '#2E7D5B' },
+  sin_empezar: { dot: 'var(--st-start-dot)', bg: 'var(--st-start-bg)', fg: 'var(--st-start-fg)' },
+  en_curso: { dot: 'var(--st-going-dot)', bg: 'var(--st-going-bg)', fg: 'var(--st-going-fg)' },
+  en_pausa: { dot: 'var(--st-pause-dot)', bg: 'var(--st-pause-bg)', fg: 'var(--st-pause-fg)' },
+  terminado: { dot: 'var(--st-done-dot)', bg: 'var(--st-done-bg)', fg: 'var(--st-done-fg)' },
 };
 
 export const RESOURCE_META = {
-  pdf: { label: 'PDF', icon: 'doc', color: '#C0553F', bg: '#FBF4F2' },
-  imagen: { label: 'Imagen', icon: 'image', color: '#3F7CA8', bg: '#EEF3F7' },
-  codigo: { label: 'Código', icon: 'code', color: '#4A7D5E', bg: '#F1F7F3' },
-  comprimido: { label: 'Comprimido', icon: 'archive', color: '#7A6A45', bg: '#F8F6F0' },
-  otro: { label: 'Archivo', icon: 'doc', color: '#8B97A9', bg: '#F4F6F8' },
+  pdf: { label: 'PDF', icon: 'doc', color: 'var(--res-pdf)', bg: 'var(--res-pdf-bg)' },
+  imagen: { label: 'Imagen', icon: 'image', color: 'var(--res-img)', bg: 'var(--res-img-bg)' },
+  codigo: { label: 'Código', icon: 'code', color: 'var(--res-code)', bg: 'var(--res-code-bg)' },
+  comprimido: { label: 'Comprimido', icon: 'archive', color: 'var(--res-zip)', bg: 'var(--res-zip-bg)' },
+  otro: { label: 'Archivo', icon: 'doc', color: 'var(--res-any)', bg: 'var(--res-any-bg)' },
 };
 
 /** Portada del curso: la imagen que subiste, o el color y monograma generados. */
@@ -207,4 +212,22 @@ export function debounce(fn, ms) {
   wrapped.flush = (...args) => { clearTimeout(timer); fn(...args); };
   wrapped.cancel = () => clearTimeout(timer);
   return wrapped;
+}
+
+// ---------------------------------------------------------------- tema
+const THEME_KEY = 'sm.theme';
+
+export function currentTheme() {
+  return localStorage.getItem(THEME_KEY) ?? 'auto';
+}
+
+/** 'auto' deja mandar al sistema; 'light' y 'dark' lo fuerzan. */
+export function applyTheme(theme) {
+  if (theme === 'auto') {
+    localStorage.removeItem(THEME_KEY);
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    localStorage.setItem(THEME_KEY, theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }
 }

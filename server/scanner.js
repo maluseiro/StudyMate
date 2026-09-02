@@ -99,11 +99,13 @@ const insertLesson = db.prepare(`
 const updateLesson = db.prepare(`
   UPDATE lessons SET module_id = @module_id, file_name = @file_name, kind = @kind, ext = @ext,
     playable = CASE WHEN remux_rel IS NOT NULL THEN 1 ELSE @playable END,
-    needs_remux = @needs_remux, sort_order = @sort_order, size = @size,
-    missing = 0,
+    needs_remux = @needs_remux, size = @size, missing = 0,
+    sort_order = CASE WHEN @keep_order = 1 THEN sort_order ELSE @sort_order END,
     title = CASE WHEN title_edited = 1 THEN title ELSE @title END
   WHERE id = @id
 `);
+
+const maxOrderIn = db.prepare('SELECT COALESCE(MAX(sort_order), -1) AS n FROM lessons WHERE module_id = ?');
 
 /**
  * Reindexa un curso.
@@ -161,6 +163,11 @@ function scanCourseInner(course) {
     }
     seenModules.add(moduleId);
 
+    // Si reordenaste el módulo a mano, el escaneo no toca el orden de lo que ya
+    // estaba y las clases nuevas se agregan al final.
+    const keepOrder = row?.order_edited ? 1 : 0;
+    let appendAt = keepOrder ? maxOrderIn.get(moduleId).n + 1 : 0;
+
     const files = group.files.sort((a, b) => naturalCompare(a.name, b.name));
     files.forEach((file, fileIndex) => {
       const relPath = relPathFor(group.relDir, file.name);
@@ -173,15 +180,16 @@ function scanCourseInner(course) {
       // los de más, así que el INSERT y el UPDATE no comparten el mismo objeto.
       const common = {
         module_id: moduleId, file_name: file.name, title: cleanTitle(file.name),
-        kind, ext, playable, needs_remux: needsRemux, sort_order: fileIndex, size: file.size,
+        kind, ext, playable, needs_remux: needsRemux, size: file.size,
       };
       const existing = findLesson.get(course.id, relPath);
       if (existing) {
-        updateLesson.run({ ...common, id: existing.id });
+        updateLesson.run({ ...common, sort_order: fileIndex, keep_order: keepOrder, id: existing.id });
         seenLessons.add(existing.id);
       } else {
         seenLessons.add(insertLesson.run({
-          ...common, course_id: course.id, rel_path: relPath,
+          ...common, sort_order: keepOrder ? appendAt++ : fileIndex,
+          course_id: course.id, rel_path: relPath,
         }).lastInsertRowid);
       }
       lessonCount++;

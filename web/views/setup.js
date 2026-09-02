@@ -169,7 +169,7 @@ export function openAddCourse(ctx) {
             coverPreview, swatches,
             h('span', { style: { fontSize: '12.5px', fontWeight: 600 } }, 'Generada')),
           h('button', {
-            style: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '9px', padding: '12px', border: '1.5px dashed #C3CBD6', borderRadius: '11px', minHeight: '158px' },
+            style: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '9px', padding: '12px', border: '1.5px dashed var(--ring-empty)', borderRadius: '11px', minHeight: '158px' },
             onclick: () => fileInput.click(),
           }, icon('upload', 24), h('span', { style: { fontSize: '13px', fontWeight: 600, color: 'var(--ink-2)' } }, 'Subir una imagen'),
              h('span', { class: 'muted', style: { fontSize: '12px' } }, 'JPG, PNG o WEBP')),
@@ -188,13 +188,78 @@ export function openAddCourse(ctx) {
   setTimeout(() => pathInput.focus(), 50);
 }
 
+/**
+ * Sin ffprobe, la duración de una clase solo se conoce al abrirla. Este panel la
+ * completa de una pasada y muestra cómo va, porque en una biblioteca grande tarda.
+ */
+function durationsPanel(ctx) {
+  const bar = h('i', { style: { width: '0%' } });
+  const label = h('span', { class: 'muted', style: { fontSize: '13px' } }, 'Consultando…');
+  const progress = h('div', { class: 'bar hidden', style: { marginTop: '4px' } }, bar);
+
+  const button = h('button', { class: 'btn btn-primary', disabled: true },
+    icon('clock', 15), 'Calcular duraciones');
+
+  let timer = null;
+  const stopPolling = () => { clearInterval(timer); timer = null; };
+
+  const paint = (state) => {
+    if (state.running) {
+      progress.classList.remove('hidden');
+      const pct = state.total ? Math.round((state.done / state.total) * 100) : 0;
+      bar.style.width = `${pct}%`;
+      label.textContent = `Leyendo ${state.done} de ${state.total}…`;
+      button.disabled = true;
+      button.replaceChildren(icon('clock', 15), 'Calculando…');
+      return;
+    }
+    stopPolling();
+    progress.classList.add('hidden');
+    button.replaceChildren(icon('clock', 15), 'Calcular duraciones');
+    button.disabled = state.pending === 0 || !ctx.state.ffmpeg;
+    if (!ctx.state.ffmpeg) {
+      label.textContent = 'Hace falta ffmpeg para leer las duraciones sin abrir cada clase.';
+    } else if (state.pending === 0) {
+      label.textContent = 'Todas las clases tienen su duración.';
+    } else {
+      label.textContent = `${state.pending} ${state.pending === 1 ? 'clase' : 'clases'} sin duración. `
+        + 'Hasta calcularlas, "cuánto le falta" aparece vacío.';
+    }
+  };
+
+  const refresh = async () => { try { paint(await api.durationStatus()); } catch { stopPolling(); } };
+
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      await api.scanDurations();
+      timer = setInterval(refresh, 600);
+      refresh();
+    } catch (err) {
+      toast(err.message, 'bad');
+      refresh();
+    }
+  });
+
+  refresh();
+
+  return h('div', {
+    style: { display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px 18px',
+             background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '10px' },
+  },
+    h('div', { style: { display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' } },
+      h('div', { class: 'grow', style: { minWidth: '260px' } }, label),
+      button),
+    progress);
+}
+
 export function renderSetup(ctx, { asSettings = false } = {}) {
   const s = ctx.state;
 
   const rootRows = s.roots.map((root) => h('div', {
     style: { display: 'flex', alignItems: 'center', gap: '12px', padding: '13px 16px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '10px' },
   },
-    icon('folder', 16, { stroke: '#8B97A9' }),
+    icon('folder', 16, { stroke: 'var(--ink-3)' }),
     h('span', { class: 'mono grow', style: { fontSize: '12.5px' } }, root.path),
     h('button', {
       class: 'icon-btn', title: 'Quitar de la biblioteca',
@@ -218,14 +283,16 @@ export function renderSetup(ctx, { asSettings = false } = {}) {
 
     !s.roots.length
       ? h('div', { class: 'empty' },
-          icon('folder', 34, { stroke: '#C3CBD6' }),
+          icon('folder', 34, { stroke: 'var(--ring-empty)' }),
           h('h2', {}, 'Todavía no hay ninguna carpeta'),
           h('p', {}, 'Agregá la carpeta donde guardás tus cursos. Cada subcarpeta que haya adentro se toma como un curso, y StudyMate arma el índice solo.'),
           h('button', { class: 'btn btn-primary btn-lg', onclick: ctx.openAddRoot }, icon('plus', 15, { width: 2.1 }), 'Agregar carpeta'))
       : h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } }, ...rootRows),
 
     asSettings ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' } },
-      h('h2', {}, 'Sistema'),
+      h('h2', {}, 'Duraciones'),
+      durationsPanel(ctx),
+      h('h2', { style: { marginTop: '10px' } }, 'Sistema'),
       h('div', { class: s.ffmpeg ? 'note-box note-ok' : 'note-box note-warn' },
         h('div', { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
           icon(s.ffmpeg ? 'check' : 'warning', 16, { width: 2.2 }),

@@ -68,12 +68,25 @@ await step('al volver, arranca 5 s antes de donde quedaste', async () => {
   // la que el test escribe a mano.
   await page.goto(`${base}/#/`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(700);
-  await api(`/api/lessons/${WEBM}/progress`, {
+
+  // Salir de una clase dispara un guardado que puede llegar después del nuestro.
+  // Escribimos y confirmamos que quedó, en vez de confiar en una espera fija.
+  const setPosition = async () => api(`/api/lessons/${WEBM}/progress`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ position: 8, duration: 10 }),
   });
-  await openLesson(WEBM);
-  await page.waitForTimeout(900);
+  for (let intento = 0; intento < 5; intento++) {
+    await setPosition();
+    const { lesson } = await api(`/api/lessons/${WEBM}`);
+    if (Math.abs(lesson.position - 8) < 0.01) break;
+    await page.waitForTimeout(400);
+  }
+  // Acá no sirve openLesson: recarga, y al recargar la app guarda la posición que
+  // acaba de restaurar. Venimos de la biblioteca, así que un goto ya dibuja de cero.
+  await page.goto(`${base}/#/clase/${WEBM}`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('video', { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('video')?.readyState >= 1, { timeout: 5000 });
+  await page.waitForTimeout(700);
   const t = await page.evaluate(() => document.querySelector('video').currentTime);
   if (Math.abs(t - 3) > 0.7) throw new Error(`esperaba ~3 s (8 − 5), obtuve ${t.toFixed(2)}`);
 });

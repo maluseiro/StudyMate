@@ -122,3 +122,40 @@ const MIME = {
 export function mimeFor(ext) {
   return MIME[ext.toLowerCase()] ?? 'application/octet-stream';
 }
+
+/** Duración en segundos según ffprobe, o null si no la puede leer. */
+export function probeDuration(absPath) {
+  return new Promise((resolve) => {
+    execFile('ffprobe', [
+      '-v', 'error',
+      '-show_entries', 'format=duration',
+      '-of', 'default=noprint_wrappers=1:nokey=1',
+      absPath,
+    ], { timeout: 20_000 }, (err, stdout) => {
+      if (err) return resolve(null);
+      const seconds = Number.parseFloat(String(stdout).trim());
+      resolve(Number.isFinite(seconds) && seconds > 0 ? seconds : null);
+    });
+  });
+}
+
+/**
+ * Saca un fotograma del video para usarlo de portada. Apunta al 12% de la duración:
+ * el principio suele ser una placa negra o un logo, y el medio puede ser una
+ * diapositiva cualquiera.
+ */
+export function extractFrame(absPath, outPath, durationSeconds) {
+  return new Promise((resolve) => {
+    const at = durationSeconds && durationSeconds > 20 ? durationSeconds * 0.12 : 1;
+    const proc = spawn('ffmpeg', [
+      '-hide_banner', '-loglevel', 'error', '-y',
+      '-ss', String(at.toFixed(2)),
+      '-i', absPath,
+      '-frames:v', '1',
+      '-vf', 'scale=640:-2',
+      outPath,
+    ]);
+    proc.on('error', () => resolve(false));
+    proc.on('close', (code) => resolve(code === 0 && fs.existsSync(outPath) && fs.statSync(outPath).size > 0));
+  });
+}

@@ -104,14 +104,25 @@ Va primera en la lista de v1.1. Si el sábado sobra tiempo, se adelanta.
 
 ## 7. Fuera del MVP
 
-**v1.1 — lo primero que sigue, en este orden**
+**v1.1 — hecho**
 
-1. **Exportar las notas de un curso a Markdown** (~45 min) — ver más abajo por qué
-   Markdown y no una integración con Notion
-2. Reordenar clases y moverlas entre módulos (drag & drop)
-3. Buscador global por título de clase o texto de las notas
-4. Escaneo de duraciones con `ffprobe` en segundo plano (cierra el Riesgo 3)
-5. Miniaturas del video como portada: un frame del minuto 30 de la primera clase
+1. **Exportar las notas de un curso a Markdown** — un archivo por curso, agrupado por
+   módulo y clase. Notion lo importa arrastrándolo; ver más abajo por qué Markdown y
+   no una integración
+2. **Reordenar clases arrastrando**, dentro de un módulo. El módulo queda marcado como
+   ordenado a mano y el escaneo deja de reacomodarlo: las clases nuevas se agregan al
+   final. Se puede volver al orden de los archivos con un botón
+3. **Buscador global** por título de clase, nombre real del archivo y texto de las
+   notas, con la tecla `/` desde cualquier pantalla
+4. **Escaneo de duraciones con `ffprobe`** en segundo plano, con barra de avance. Cierra
+   el Riesgo 3: ya no hay que abrir una clase para saber cuánto dura
+5. **Portada desde un fotograma del video**, tomado al 12% de la duración de la primera
+   clase — el principio suele ser una placa negra
+6. **Tema oscuro**, con una tercera opción que sigue al sistema
+
+Quedó afuera de esta tanda: **mover clases entre módulos**. El módulo sale de la carpeta
+en el disco, así que un reescaneo la devolvería a su lugar; hacerlo bien pide otra marca
+de "editado a mano" y no parecía valer el enredo todavía.
 
 **v2 — si el proyecto sobrevive al primer mes**
 - **Transcribir los cursos con Whisper local e indexar el texto.** Buscás un concepto

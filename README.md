@@ -65,6 +65,42 @@ Un reescaneo **nunca pierde nada**: la identidad de una clase es su ruta relativ
 del curso, así que renombrar en la app, el progreso y las notas sobreviven. Lo que
 desaparece del disco se marca, no se borra: si el archivo vuelve, vuelve con sus notas.
 
+## Buscar
+
+La tecla `/` desde cualquier pantalla abre el buscador. Busca en tres lugares a la vez:
+el título que le pusiste a cada clase, **el nombre real del archivo en el disco**, y el
+texto de tus notas.
+
+## Notas
+
+Se guardan solas mientras escribís. El botón de la izquierda inserta la marca de tiempo
+del minuto actual, así una nota queda anclada al momento del video.
+
+**Exportar notas** en la pantalla del curso baja un `.md` con todas tus notas agrupadas
+por módulo y clase. Notion, Obsidian y Logseq lo importan arrastrándolo.
+
+## Reordenar
+
+Si el orden que sale del nombre de los archivos no sirve, arrastrá las clases dentro de
+un módulo. A partir de ahí ese módulo queda ordenado a mano: el escaneo no lo vuelve a
+tocar y las clases nuevas se agregan al final. Un botón lo devuelve al orden original.
+
+## Portadas
+
+Cada curso arranca con una portada generada: un color estable derivado del título y sus
+iniciales. Se puede reemplazar por una imagen propia, o por **un fotograma del video**
+(lo saca al 12% de la primera clase, porque el arranque suele ser una placa negra).
+
+## Duraciones
+
+Sin ffprobe, la duración de una clase solo se conoce al abrirla. En **Ajustes**,
+"Calcular duraciones" las completa todas de una pasada, con barra de avance.
+
+## Tema
+
+Claro, oscuro, o **Auto** para seguir al sistema. Se elige abajo en la barra lateral y
+queda guardado en el navegador.
+
 ## Atajos en la pantalla de clase
 
 | Tecla | Acción |
@@ -75,6 +111,7 @@ desaparece del disco se marca, no se borra: si el archivo vuelve, vuelve con sus
 | `N` `P` | Clase siguiente / anterior |
 | `M` | Marcar vista (o desmarcar) |
 | `F` | Volver a esto |
+| `/` | Buscar (fuera de la pantalla de clase) |
 
 Al reanudar una clase arranca **5 segundos antes** de donde la dejaste, para que
 recuperes el hilo. Al terminar, la siguiente arranca sola con 5 segundos para cancelar.
@@ -91,25 +128,27 @@ server/
 web/           interfaz: HTML, CSS y JS sin build step
 data/          la base y las portadas (no se versiona)
 tests/
-  browser.mjs  pruebas de punta a punta
+  browser.mjs  pruebas de reproducción y progreso
+  features.mjs pruebas de buscador, tema, reordenar y exportar
 ```
 
 No hay bundler ni framework: se edita un archivo y se recarga la página.
 
 ## Pruebas
 
-Necesitan Playwright y una biblioteca de prueba con videos:
+Son dos series, y necesitan Playwright y una biblioteca cargada con videos de verdad:
 
 ```
 npm install -D playwright
-node tests/browser.mjs
+node tests/browser.mjs     # reproducción, progreso, notas, atajos, autoplay
+node tests/features.mjs    # buscador, tema, reordenar, exportar, duraciones
 ```
 
-Esperan un servidor corriendo en `localhost:4173`. Los identificadores de clase que usan
-están al principio del archivo.
+Esperan un servidor en `localhost:4173` (o el que digas en `SM_URL`). Eligen solos con
+qué curso y qué clase trabajar, así que sirven contra cualquier biblioteca.
 
 ## Lo que no hace
 
 No se expone a internet ni tiene usuarios. No descarga cursos. No recomprime video. No
-sincroniza con la nube: si querés tus notas afuera, la exportación a Markdown está en la
-lista de lo que sigue.
+sincroniza con la nube: para sacar tus notas afuera está la exportación a Markdown. No
+hay rachas ni estadísticas de tiempo estudiado, a propósito.

@@ -34,6 +34,13 @@ export const api = {
   clearCover:   (id) => request('DELETE', `/api/courses/${id}/cover`),
 
   updateModule: (id, patch) => request('PATCH', `/api/modules/${id}`, patch),
+  reorderModule:(id, lessonIds) => request('POST', `/api/modules/${id}/reorder`, { lesson_ids: lessonIds }),
+  resetOrder:   (id) => request('DELETE', `/api/modules/${id}/reorder`),
+
+  search:       (q) => request('GET', '/api/search?q=' + encodeURIComponent(q)),
+  frameCover:   (id, lessonId) => request('POST', `/api/courses/${id}/cover/frame`, { lesson_id: lessonId ?? null }),
+  durationStatus:() => request('GET', '/api/durations/status'),
+  scanDurations:() => request('POST', '/api/durations/scan'),
 
   lesson:       (id) => request('GET', `/api/lessons/${id}`),
   updateLesson: (id, patch) => request('PATCH', `/api/lessons/${id}`, patch),

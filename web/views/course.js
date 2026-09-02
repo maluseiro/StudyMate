@@ -40,13 +40,16 @@ function lessonRow(ctx, lesson, index) {
 
   return h('div', {
     class: `lesson-row ${lesson.watched ? 'is-watched' : ''}`,
-    style: { cursor: 'pointer' },
+    draggable: true,
+    dataset: { lessonId: String(lesson.id) },
     onclick: (e) => { if (!e.target.closest('button')) ctx.go(`/clase/${lesson.id}`); },
   },
+    h('span', { class: 'drag-handle', title: 'Arrastrá para reordenar' },
+      icon('grip', 14, { stroke: 'var(--ink-4)' })),
     statusDot(lesson),
     h('span', { class: 'lesson-n' }, String(index + 1)),
     body,
-    !playable ? h('span', { class: 'pill', style: { background: '#FCF0E4', color: 'var(--accent-ink)' } },
+    !playable ? h('span', { class: 'pill', style: { background: 'var(--st-going-bg)', color: 'var(--accent-ink)' } },
       icon('warning', 12, { width: 2 }), lesson.ext.replace('.', '').toUpperCase()) : null,
     h('button', {
       class: 'btn btn-sm rename-btn', title: 'Renombrar sin tocar el archivo',
@@ -65,10 +68,53 @@ function lessonRow(ctx, lesson, index) {
         await api.updateLesson(lesson.id, { flagged: next });
         lesson.flagged = next ? 1 : 0;
         e.currentTarget.classList.toggle('is-on', next);
-        e.currentTarget.replaceChildren(icon('flag', 16, next ? { fill: '#E8720C', stroke: '#E8720C' } : {}));
+        e.currentTarget.replaceChildren(icon('flag', 16, next ? { fill: 'var(--accent)', stroke: 'var(--accent)' } : {}));
         await ctx.refreshState();
       },
-    }, icon('flag', 16, lesson.flagged ? { fill: '#E8720C', stroke: '#E8720C' } : {})));
+    }, icon('flag', 16, lesson.flagged ? { fill: 'var(--accent)', stroke: 'var(--accent)' } : {})));
+}
+
+/**
+ * Reordenar arrastrando, dentro del módulo. Al soltar se guarda el orden y el
+ * módulo queda marcado como ordenado a mano: el escaneo ya no lo reacomoda.
+ */
+function makeSortable(list, module) {
+  let dragging = null;
+
+  list.addEventListener('dragstart', (e) => {
+    const row = e.target.closest('.lesson-row');
+    if (!row) return;
+    dragging = row;
+    row.classList.add('is-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', row.dataset.lessonId);
+  });
+
+  list.addEventListener('dragover', (e) => {
+    if (!dragging) return;
+    e.preventDefault();
+    const over = e.target.closest('.lesson-row');
+    if (!over || over === dragging) return;
+    const box = over.getBoundingClientRect();
+    const below = e.clientY > box.top + box.height / 2;
+    list.insertBefore(dragging, below ? over.nextSibling : over);
+  });
+
+  list.addEventListener('dragend', async () => {
+    if (!dragging) return;
+    dragging.classList.remove('is-dragging');
+    dragging = null;
+
+    const rows = [...list.querySelectorAll('.lesson-row')];
+    rows.forEach((row, i) => { row.querySelector('.lesson-n').textContent = String(i + 1); });
+    try {
+      await api.reorderModule(module.id, rows.map((row) => Number(row.dataset.lessonId)));
+      toast('Orden guardado');
+      module.order_edited = 1;
+    } catch (err) {
+      toast(err.message, 'bad');
+    }
+  });
 }
 
 function moduleBlock(ctx, module, isOpen) {
@@ -101,12 +147,33 @@ function moduleBlock(ctx, module, isOpen) {
       class: 'pill',
       style: complete
         ? { background: 'var(--ok-soft)', color: 'var(--ok)' }
-        : (watched ? { background: 'var(--accent-soft)', color: 'var(--accent-ink)' } : { background: '#F1F4F8', color: 'var(--ink-3)' }),
+        : (watched ? { background: 'var(--accent-soft)', color: 'var(--accent-ink)' } : { background: 'var(--surface-2)', color: 'var(--ink-3)' }),
     }, complete ? icon('check', 11, { width: 3 }) : null, `${watched}/${module.lessons.length}`));
+
+  let list = null;
+  if (isOpen) {
+    list = h('div', {}, ...module.lessons.map((l, i) => lessonRow(ctx, l, i)));
+    makeSortable(list, module);
+  }
 
   return h('div', { class: `module ${isOpen ? 'is-open' : ''}` },
     head,
-    isOpen ? h('div', {}, ...module.lessons.map((l, i) => lessonRow(ctx, l, i))) : null);
+    list,
+    isOpen && module.order_edited
+      ? h('div', { class: 'module-foot' },
+          icon('pencil', 12, { stroke: 'var(--ink-3)' }),
+          h('span', { class: 'grow' }, 'Ordenado a mano. Las clases nuevas se agregan al final.'),
+          h('button', {
+            class: 'btn btn-sm',
+            onclick: async () => {
+              try {
+                await api.resetOrder(module.id);
+                toast('Volvió al orden de los archivos');
+                render();
+              } catch (err) { toast(err.message, 'bad'); }
+            },
+          }, 'Volver al orden original'))
+      : null);
 }
 
 // ---------------------------------------------------------------- recursos
@@ -141,7 +208,7 @@ function resourcesTab(ctx, data) {
 
   if (!all.length) {
     return h('div', { class: 'empty' },
-      icon('folder', 32, { stroke: '#C3CBD6' }),
+      icon('folder', 32, { stroke: 'var(--ring-empty)' }),
       h('h2', {}, 'Este curso no trae material aparte'),
       h('p', {}, 'Acá aparecen los PDFs, imágenes, código y comprimidos que vengan en la carpeta del curso.'));
   }
@@ -233,11 +300,24 @@ export async function renderCourse(ctx, id, tab) {
       coverNode,
       h('div', { style: { display: 'flex', gap: '8px' } },
         h('button', { class: 'btn btn-sm grow', onclick: () => coverInput.click() },
-          icon('upload', 14), 'Cambiar portada'),
+          icon('upload', 14), 'Subir portada'),
         course.hasCover ? h('button', {
           class: 'btn btn-sm', title: 'Volver a la portada generada',
           onclick: async () => { await api.clearCover(course.id); render(); },
         }, icon('x', 14)) : null),
+      ctx.state.ffmpeg ? h('button', {
+        class: 'btn btn-sm',
+        title: 'Saca un fotograma de la primera clase y lo usa de portada',
+        onclick: async (e) => {
+          const button = e.currentTarget;
+          button.disabled = true;
+          try {
+            const r = await api.frameCover(course.id);
+            toast(`Portada tomada de "${r.from}"`);
+            render();
+          } catch (err) { toast(err.message, 'bad'); button.disabled = false; }
+        },
+      }, icon('image', 14), 'Usar un fotograma') : null,
       coverInput),
 
     h('div', { class: 'hero-body' },
@@ -251,7 +331,7 @@ export async function renderCourse(ctx, id, tab) {
           }),
         }, icon('pencil', 14))),
 
-      h('div', { class: 'path-row' }, icon('folder', 14, { stroke: '#8B97A9' }),
+      h('div', { class: 'path-row' }, icon('folder', 14, { stroke: 'var(--ink-3)' }),
         h('span', { class: 'mono' }, course.path)),
 
       h('div', { style: { display: 'flex', alignItems: 'flex-end', gap: '10px', flexWrap: 'wrap' } },
@@ -274,7 +354,11 @@ export async function renderCourse(ctx, id, tab) {
               render();
             } catch (err) { toast(err.message, 'bad'); }
           },
-        }, icon('refresh', 14, { width: 1.9 }), 'Reescanear')),
+        }, icon('refresh', 14, { width: 1.9 }), 'Reescanear'),
+        h('a', {
+          class: 'btn', href: `/api/courses/${course.id}/notes.md`, download: '',
+          title: 'Baja todas tus notas de este curso en un archivo Markdown',
+        }, icon('download', 14), 'Exportar notas')),
 
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: '7px' } },
         h('div', { style: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px' } },
@@ -308,7 +392,7 @@ export async function renderCourse(ctx, id, tab) {
   return h('main', { class: 'main' },
     h('div', { class: 'crumbs' },
       h('button', { onclick: () => ctx.go('/') }, 'Biblioteca'),
-      icon('chevronRight', 13, { stroke: '#C3CBD6', width: 2.2 }),
+      icon('chevronRight', 13, { stroke: 'var(--ring-empty)', width: 2.2 }),
       h('span', { class: 'now' }, course.title)),
     hero,
     tabs,

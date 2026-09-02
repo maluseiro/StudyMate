@@ -33,7 +33,7 @@ export async function renderLesson(ctx, id) {
 
   const playerWrap = h('div', { class: 'player-wrap' });
   const fallback = () => h('div', { class: 'player-fallback' },
-    icon('warning', 30, { stroke: '#E8720C' }),
+    icon('warning', 30, { stroke: 'var(--accent)' }),
     h('h3', {}, 'El navegador no puede reproducir este archivo'),
     h('p', {}, lesson.ext === '.mkv' || lesson.ext === '.ts' || lesson.ext === '.avi'
       ? `Los archivos ${lesson.ext} no los abre ningún navegador. Casi siempre es solo el envase: convertirlo a MP4 no recomprime nada ni pierde calidad.`
@@ -207,13 +207,13 @@ export async function renderLesson(ctx, id) {
       const value = !lesson.flagged;
       await api.updateLesson(lesson.id, { flagged: value });
       lesson.flagged = value ? 1 : 0;
-      flagBtn.replaceChildren(icon('flag', 15, value ? { fill: '#E8720C', stroke: '#E8720C' } : {}), 'Volver a esto');
+      flagBtn.replaceChildren(icon('flag', 15, value ? { fill: 'var(--accent)', stroke: 'var(--accent)' } : {}), 'Volver a esto');
       Object.assign(flagBtn.style, value
         ? { background: 'var(--accent-soft)', borderColor: 'transparent', color: 'var(--accent-ink)' }
         : { background: '', borderColor: '', color: '' });
       await ctx.refreshState();
     },
-  }, icon('flag', 15, lesson.flagged ? { fill: '#E8720C', stroke: '#E8720C' } : {}), 'Volver a esto');
+  }, icon('flag', 15, lesson.flagged ? { fill: 'var(--accent)', stroke: 'var(--accent)' } : {}), 'Volver a esto');
 
   // ------------------------------------------------------------- notas
   const saveState = h('span', { class: 'save-state' });
@@ -228,7 +228,7 @@ export async function renderLesson(ctx, id) {
       saveState.replaceChildren(icon('check', 13, { width: 2.6 }), 'Guardado');
     } catch (err) {
       saveState.replaceChildren(icon('warning', 13, { width: 2.2 }), 'No se pudo guardar');
-      saveState.style.color = '#A03C2C';
+      saveState.style.color = 'var(--danger)';
     }
   }, 700);
 
@@ -319,9 +319,9 @@ export async function renderLesson(ctx, id) {
         else api.openFolder(item.id).catch((err) => toast(err.message, 'bad'));
       },
     },
-      item.kind === 'video' ? statusDot(item, isCurrent) : icon(meta?.icon ?? 'doc', 17, { stroke: '#8B97A9', width: 1.7 }),
+      item.kind === 'video' ? statusDot(item, isCurrent) : icon(meta?.icon ?? 'doc', 17, { stroke: 'var(--ink-3)', width: 1.7 }),
       h('span', { class: 'grow' }, item.title),
-      item.flagged ? icon('flag', 14, { fill: '#E8720C', stroke: '#E8720C' }) : null,
+      item.flagged ? icon('flag', 14, { fill: 'var(--accent)', stroke: 'var(--accent)' }) : null,
       h('span', { class: 'mono', style: { fontSize: '11px', color: 'var(--ink-4)' } },
         item.kind === 'video' ? (item.duration ? fmtTime(item.duration) : '—') : (meta?.label ?? ''))));
   }
@@ -382,7 +382,7 @@ export async function renderLesson(ctx, id) {
               `${module?.title ?? ''} · Clase ${outline.filter((o) => o.kind === 'video').findIndex((o) => o.id === lesson.id) + 1} de ${progress.total}`),
             h('h1', {}, lesson.title),
             h('div', { style: { display: 'flex', alignItems: 'center', gap: '9px', fontSize: '13.5px', color: 'var(--ink-2)' } },
-              icon('clock', 14, { stroke: '#8B97A9', width: 1.9 }), leftLabel)),
+              icon('clock', 14, { stroke: 'var(--ink-3)', width: 1.9 }), leftLabel)),
           h('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' } },
             flagBtn,
             markWatchedBtn,

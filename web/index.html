@@ -9,6 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="/styles.css">
+  <script>
+    // Antes de pintar nada: si elegiste un tema a mano, se aplica ya. Si esto
+    // corriera con el resto del JS, verías un destello del tema equivocado.
+    try {
+      var t = localStorage.getItem('sm.theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) { /* modo privado sin almacenamiento: se usa el del sistema */ }
+  </script>
 </head>
 <body>
   <div id="root"></div>
