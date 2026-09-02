@@ -1,0 +1,271 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #F4F6F8; font-family: 'Figtree', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #B85A0D; text-decoration: none; }
+    a:hover { color: #8F4509; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; display: flex; flex-direction: column; background: #F4F6F8; color: #16233A;">
+
+  <!-- ============ BARRA SUPERIOR ============ -->
+  <div style="display: flex; align-items: center; gap: 22px; height: 62px; flex: none; padding: 0 28px; background: #FFFFFF; border-bottom: 1px solid #E3E8EE;">
+
+    <div style="display: flex; align-items: center; gap: 10px; flex: none;">
+      <div style="width: 30px; height: 30px; border-radius: 8px; background: #16233A; display: flex; align-items: center; justify-content: center;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M8 5.5v13l11-6.5z"></path></svg>
+      </div>
+      <span style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -.02em;">StudyMate</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 4px; flex: none;">
+      <span style="height: 34px; padding: 0 13px; border-radius: 8px; background: #F1F4F8; font-size: 14px; font-weight: 600; display: flex; align-items: center;">Biblioteca</span>
+      <span style="height: 34px; padding: 0 13px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #56647D; display: flex; align-items: center; gap: 7px;">
+        Volver a esto
+        <span style="height: 19px; min-width: 19px; padding: 0 6px; border-radius: 99px; background: #EDF1F5; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #56647D; display: flex; align-items: center; justify-content: center;">7</span>
+      </span>
+    </div>
+
+    <!-- el buscador al centro, como en Udemy -->
+    <div style="flex-grow: 1; display: flex; justify-content: center; min-width: 0;">
+      <div style="position: relative; width: 100%; max-width: 520px; display: flex; align-items: center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8B97A9" stroke-width="1.9" stroke-linecap="round" style="position: absolute; left: 13px;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4.2-4.2"></path></svg>
+        <div style="width: 100%; height: 40px; padding: 0 14px 0 40px; border: 1px solid #D8DFE7; border-radius: 99px; background: #F7F9FB; font-size: 14px; color: #8B97A9; display: flex; align-items: center;">
+          Buscar clases, archivos y tus notas…
+        </div>
+        <span style="position: absolute; right: 14px; height: 20px; padding: 0 7px; border: 1px solid #D8DFE7; border-bottom-width: 2px; border-radius: 5px; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8B97A9; display: flex; align-items: center;">/</span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 9px; flex: none;">
+      <div style="width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#56647D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"></path></svg>
+      </div>
+      <div style="width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#56647D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9 2 2 0 1 1-2.7 2.7 1.7 1.7 0 0 0-1.9.3 1.7 1.7 0 0 0-1 1.5 2 2 0 1 1-4 0 1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9-.3 2 2 0 1 1-2.7-2.7 1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1 2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9 2 2 0 1 1 2.7-2.7 1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5 2 2 0 1 1 4 0 1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3 2 2 0 1 1 2.7 2.7 1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1 2 2 0 1 1 0 4 1.7 1.7 0 0 0-1.5 1z"></path></svg>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; background: #16233A; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: #FFFFFF;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        <span>Agregar curso</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONTENIDO A TODO EL ANCHO ============ -->
+  <div style="display: flex; flex-direction: column; gap: 24px; padding: 28px 28px 48px;">
+
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <h1 style="margin: 0; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -.028em;">Biblioteca</h1>
+        <span style="font-size: 14px; color: #56647D;">12 cursos · 2.158 clases · 1 en curso</span>
+      </div>
+    </div>
+
+    <!-- seguir donde quedaste -->
+    <div style="display: flex; align-items: stretch; gap: 22px; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 13px; padding: 18px; box-shadow: 0 1px 2px rgba(22,35,58,.05), 0 10px 26px -18px rgba(22,35,58,.22);">
+      <div style="position: relative; width: 218px; height: 123px; flex: none; border-radius: 9px; background: #5C2F3E; overflow: hidden;">
+        <span style="position: absolute; right: -8px; bottom: -22px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 76px; color: rgba(255,255,255,.14); letter-spacing: -.04em;">PA</span>
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 1%; height: 4px; background: #E8720C;"></div></div>
+        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.93); display: flex; align-items: center; justify-content: center;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#16233A"><path d="M8 5.5v13l11-6.5z"></path></svg>
+          </div>
+        </div>
+      </div>
+      <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; justify-content: center;">
+        <div style="font-size: 10.5px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; color: #B85A0D;">Seguir donde quedaste</div>
+        <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -.02em;">Piano Acompañamientos</div>
+        <div style="font-size: 14px; color: #56647D;">Bloque 0 · Pongámonos al día — Presentación</div>
+        <div style="display: flex; align-items: center; gap: 12px; padding-top: 6px;">
+          <div style="width: 300px; height: 6px; border-radius: 3px; background: #E9EDF2;"><div style="width: 1%; height: 6px; border-radius: 3px; background: #E8720C;"></div></div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56647D;">1/196 · 1%</span>
+          <span style="font-size: 12.5px; color: #8B97A9;">quedan 6 min de esta clase</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; flex: none;">
+        <div style="display: flex; align-items: center; gap: 9px; height: 44px; padding: 0 24px; background: #E8720C; border-radius: 10px; font-size: 15px; font-weight: 700; color: #FFFFFF;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M8 5.5v13l11-6.5z"></path></svg>
+          <span>Continuar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- filtros -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #16233A; color: #FFFFFF; font-size: 13px; font-weight: 600;"><span>Todos</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; opacity: .65;">12</span></div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #E8720C;"></span><span>En curso</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">1</span></div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #C3CBD6;"></span><span>Sin empezar</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">11</span></div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #7E8CA3;"></span><span>En pausa</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">0</span></div>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px solid #D8DFE7; font-size: 13px; font-weight: 500;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #2E7D5B;"></span><span>Terminado</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8B97A9;">0</span></div>
+      <span style="width: 1px; height: 22px; background: #D8DFE7; margin: 0 4px;"></span>
+      <div style="display: flex; align-items: center; gap: 7px; height: 33px; padding: 0 15px; border-radius: 99px; background: #FFFFFF; border: 1px dashed #C3CBD6; font-size: 13px; font-weight: 500; color: #56647D;">Solo entretenimiento</div>
+    </div>
+
+    <!-- grilla de 5 columnas: es lo que gana al sacar la barra lateral -->
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px;">
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #5C2F3E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">PA</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"><div style="width: 1%; height: 4px; background: #E8720C;"></div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Piano Acompañamientos</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">6 módulos · 196 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #FDEEE0; font-size: 11.5px; font-weight: 600; color: #B85A0D;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #E8720C;"></span>En curso</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56647D;">1/196</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #7A3B2E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">AV</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Avanzada</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">19 módulos · 83 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/83</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #2F5D4F;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">BA</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Basica</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">29 módulos · 126 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/126</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #2C4A6E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">BI</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Basico e intermedio</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">13 módulos · 310 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/310</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #4A3A6B;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">CL</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Clasica</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">15 módulos · 205 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/205</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #6B5638;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">CP</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Curso.Piano.Melodias</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">33 módulos · 319 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/319</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #2E5560;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">ME</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Mezcla</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">1 módulo · 64 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/64</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #3F4A66;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">PA</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Partituras</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">4 módulos · 240 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/240</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #2C4A6E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">PP</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Piano Partituras de Jaime Altozano</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">4 módulos · 130 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/130</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E3E8EE; border-radius: 11px; overflow: hidden;">
+        <div style="position: relative; height: 145px; background: #7A3B2E;">
+          <span style="position: absolute; right: -6px; bottom: -18px; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 66px; color: rgba(255,255,255,.14);">PP</span>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.22);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px;">
+          <div style="font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.28;">Piano Partituras de Jaime Altozano</div>
+          <div style="font-size: 12.5px; color: #8B97A9;">1 módulo · 108 clases</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 3px;">
+            <span style="display: flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 99px; background: #F1F4F8; font-size: 11.5px; font-weight: 600; color: #8B97A9;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C3CBD6;"></span>Sin empezar</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8B97A9;">0/108</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
