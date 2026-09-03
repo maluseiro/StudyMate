@@ -219,29 +219,53 @@ export function mimeFor(ext) {
 }
 
 /** Duración en segundos según ffprobe, o null si no la puede leer. */
-export function probeDuration(absPath) {
+/**
+ * Windows corta las rutas en 260 caracteres para los programas que no piden lo
+ * contrario. Con nombres largos de curso, módulo y clase se pasa fácil, y ffprobe
+ * no puede abrir el archivo. El prefijo \\?\ levanta ese límite.
+ */
+function longPath(absPath) {
+  if (process.platform !== 'win32' || absPath.startsWith('\\\\?\\')) return absPath;
+  return '\\\\?\\' + absPath;
+}
+
+function runProbe(cmd, target) {
   return new Promise((resolve) => {
-    resolveTool('ffprobe').then((cmd) => {
-    if (!cmd) return resolve({ seconds: null, error: 'No se encontró ffprobe.' });
     execFile(cmd, [
       '-v', 'error',
       '-show_entries', 'format=duration',
       '-of', 'default=noprint_wrappers=1:nokey=1',
-      absPath,
-    ], { timeout: 20_000 }, (err, stdout, stderr) => {
+      target,
+    ], { timeout: 30_000 }, (err, stdout, stderr) => {
       if (err) {
-        const detalle = err.code === 'ENOENT'
-          ? 'No se encontró ffprobe en el PATH.'
+        const detalle = err.killed
+          ? 'ffprobe tardó más de 30 s y se canceló.'
           : (String(stderr || '').trim().split('\n').pop() || err.message);
         return resolve({ seconds: null, error: detalle });
       }
       const seconds = Number.parseFloat(String(stdout).trim());
       return Number.isFinite(seconds) && seconds > 0
         ? resolve({ seconds })
-        : resolve({ seconds: null, error: 'ffprobe no devolvió una duración para este archivo.' });
-    });
+        : resolve({ seconds: null, error: 'ffprobe no devolvió una duración.' });
     });
   });
+}
+
+export async function probeDuration(absPath) {
+  const cmd = await resolveTool('ffprobe');
+  if (!cmd) return { seconds: null, error: 'No se encontró ffprobe.' };
+
+  const first = await runProbe(cmd, absPath);
+  if (first.seconds) return first;
+
+  // Segundo intento con la ruta larga, pero solo si la ruta es lo bastante larga
+  // como para que ese sea el problema. Reintentar siempre duplicaría el trabajo en
+  // bibliotecas donde los fallos son por otra cosa.
+  if (process.platform === 'win32' && absPath.length > 240) {
+    const retry = await runProbe(cmd, longPath(absPath));
+    if (retry.seconds) return { ...retry, viaLongPath: true };
+  }
+  return first;
 }
 
 /**

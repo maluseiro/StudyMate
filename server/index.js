@@ -651,7 +651,7 @@ app.get('/api/search', wrap((req, res) => {
  */
 const durationJob = {
   running: false, done: 0, total: 0, updated: 0, failed: 0,
-  error: null, lastFailure: null,
+  error: null, lastFailure: null, samples: [],
 };
 
 app.get('/api/durations/status', wrap((req, res) => {
@@ -676,12 +676,13 @@ app.post('/api/durations/scan', wrap(async (req, res) => {
 
   Object.assign(durationJob, {
     running: true, done: 0, total: pending.length, updated: 0, failed: 0,
-    error: null, lastFailure: null,
+    error: null, lastFailure: null, samples: [],
   });
   res.json({ ...durationJob, started: true });
 
   const save = db.prepare('UPDATE lessons SET duration = ? WHERE id = ?');
-  const WORKERS = 4;
+  // Leer cabeceras es I/O, no CPU: con más en paralelo baja bastante el total.
+  const WORKERS = 8;
   let cursor = 0;
 
   const worker = async () => {
@@ -699,8 +700,13 @@ app.post('/api/durations/scan', wrap(async (req, res) => {
         durationJob.updated++;
       } else {
         durationJob.failed++;
-        // Guardamos el primero: repetir el mismo error mil veces no aporta.
         durationJob.lastFailure ??= result.error;
+        // Unas pocas muestras con el archivo incluido: sin saber cuál falla no hay
+        // forma de diagnosticar nada.
+        if (durationJob.samples.length < 4
+            && !durationJob.samples.some((x) => x.error === result.error)) {
+          durationJob.samples.push({ error: result.error, file: item.rel_path, chars: (item.course_path + '\\' + item.rel_path).length });
+        }
       }
       durationJob.done++;
     }

@@ -205,16 +205,35 @@ function durationsPanel(ctx) {
 
   const detail = h('div', { class: 'note-box note-bad hidden' });
 
+  const mostrarFallos = (state) => {
+    if (!state.failed || !state.samples?.length) {
+      detail.classList.add('hidden');
+      return;
+    }
+    detail.replaceChildren(
+      h('span', { style: { fontWeight: 600 } },
+        `${state.failed} ${state.failed === 1 ? 'clase no se pudo leer' : 'clases no se pudieron leer'}`),
+      ...state.samples.map((sample) => h('div', {
+        style: { display: 'flex', flexDirection: 'column', gap: '2px', paddingTop: '4px' },
+      },
+        h('span', { class: 'mono', style: { fontSize: '11.5px', wordBreak: 'break-all' } }, sample.file),
+        h('span', { style: { fontSize: '12.5px' } }, sample.error),
+        h('span', { class: 'mono muted', style: { fontSize: '11px' } }, `ruta de ${sample.chars} caracteres`))));
+    detail.classList.remove('hidden');
+  };
+
   const paint = (state) => {
     if (state.running) {
       progress.classList.remove('hidden');
-      detail.classList.add('hidden');
       const pct = state.total ? Math.round((state.done / state.total) * 100) : 0;
       bar.style.width = `${pct}%`;
       label.textContent = `Leyendo ${state.done} de ${state.total}…`
         + (state.failed ? ` · ${state.failed} sin poder leer` : '');
       button.disabled = true;
       button.replaceChildren(icon('clock', 15), 'Calculando…');
+      // El motivo se muestra mientras corre: esperar al final para enterarse de que
+      // algo falla es demasiado tarde cuando son miles de archivos.
+      mostrarFallos(state);
       return;
     }
     stopPolling();
@@ -232,15 +251,7 @@ function durationsPanel(ctx) {
         + 'Hasta calcularlas, "cuánto le falta" aparece vacío.';
     }
 
-    // Si el trabajo corrió y falló, hay que decir por qué: antes mostraba el mismo
-    // mensaje que si no hubiera nada pendiente.
-    if (state.failed && state.lastFailure) {
-      detail.replaceChildren(
-        h('span', { style: { fontWeight: 600 } },
-          `${state.failed} ${state.failed === 1 ? 'clase no se pudo leer' : 'clases no se pudieron leer'}`),
-        h('span', { class: 'mono', style: { fontSize: '12px' } }, state.lastFailure));
-      detail.classList.remove('hidden');
-    }
+    mostrarFallos(state);
   };
 
   const refresh = async () => { try { paint(await api.durationStatus()); } catch { stopPolling(); } };
