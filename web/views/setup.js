@@ -270,6 +270,58 @@ function durationsPanel(ctx) {
     detail);
 }
 
+/**
+ * Cuando el PATH no alcanza. En Windows pasa seguido: un programa lanzado desde el
+ * Explorador hereda el entorno viejo, así que ffmpeg recién instalado no aparece
+ * hasta cerrar sesión. Acá se puede volver a buscar o indicar la carpeta a mano.
+ */
+function toolsFallback(ctx, s) {
+  const input = h('input', {
+    class: 'control grow', value: s.ffmpegDir ?? '',
+    placeholder: 'C:\\Users\\...\\WinGet\\Links',
+    style: { fontFamily: 'var(--mono)', fontSize: '12.5px', minWidth: '260px' },
+  });
+  const message = h('div', { class: 'note-box note-bad hidden' });
+
+  const done = async (tools) => {
+    await ctx.refreshState();
+    const ok = tools.ffmpeg && tools.ffprobe;
+    toast(ok ? 'Encontrados los dos' : 'Sigue faltando alguno', ok ? 'ok' : 'bad');
+    render();
+  };
+
+  const fail = (err) => {
+    message.textContent = err.message;
+    message.classList.remove('hidden');
+  };
+
+  return h('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
+    h('span', { class: 'muted', style: { fontSize: '13px', lineHeight: 1.5 } },
+      'Si lo instalaste con StudyMate abierto, el programa todavía no ve el PATH nuevo: '
+      + 'probá volver a comprobar. Si sigue sin aparecer, indicá la carpeta donde está '
+      + 'ffmpeg.exe — con winget suele ser AppData\\Local\\Microsoft\\WinGet\\Links.'),
+
+    h('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap' } },
+      h('button', {
+        class: 'btn',
+        onclick: async (e) => {
+          e.currentTarget.disabled = true;
+          try { await done(await api.recheckTools()); } catch (err) { fail(err); }
+        },
+      }, icon('refresh', 15, { width: 1.9 }), 'Volver a comprobar')),
+
+    h('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap' } },
+      input,
+      h('button', {
+        class: 'btn btn-primary',
+        onclick: async () => {
+          message.classList.add('hidden');
+          try { await done(await api.setFfmpegDir(input.value)); } catch (err) { fail(err); }
+        },
+      }, 'Usar esta carpeta')),
+    message);
+}
+
 export function renderSetup(ctx, { asSettings = false } = {}) {
   const s = ctx.state;
 
@@ -357,22 +409,11 @@ export function renderSetup(ctx, { asSettings = false } = {}) {
           h('span', { style: { fontWeight: 600 } }, t.ok ? 'disponible' : 'no encontrado en el PATH')),
         h('span', {}, t.para))),
 
-      !(s.ffmpeg && s.ffprobe)
-        ? h('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' } },
-            h('span', { class: 'muted', style: { fontSize: '13px' } },
-              'Si lo instalaste con StudyMate abierto, el programa todavía no ve el PATH nuevo.'),
-            h('button', {
-              class: 'btn',
-              onclick: async (e) => {
-                const button = e.currentTarget;
-                button.disabled = true;
-                await ctx.refreshState();
-                const ahora = ctx.state.ffmpeg && ctx.state.ffprobe;
-                toast(ahora ? 'Encontrados' : 'Sigue sin encontrarlos', ahora ? 'ok' : 'bad');
-                render();
-              },
-            }, icon('refresh', 15, { width: 1.9 }), 'Volver a comprobar'))
+      s.ffmpeg && s.ffmpegPath !== 'ffmpeg'
+        ? h('span', { class: 'mono muted', style: { fontSize: '12px' } }, `Encontrado en ${s.ffmpegPath}`)
         : null,
+
+      !(s.ffmpeg && s.ffprobe) ? toolsFallback(ctx, s) : null,
       s.addresses.length ? h('div', { class: 'note-box', style: { background: 'var(--surface)', border: '1px solid var(--line)' } },
         h('span', { style: { fontWeight: 600 } }, 'Desde el celular, en la misma red WiFi:'),
         ...s.addresses.map((ip) => h('span', { class: 'mono' }, `http://${ip}:${location.port || 4173}`))) : null,

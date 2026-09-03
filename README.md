@@ -117,8 +117,16 @@ Sin ffprobe, la duración de una clase solo se conoce al abrirla. En **Ajustes**
 "Calcular duraciones" las completa todas de una pasada, con barra de avance.
 
 **ffmpeg y ffprobe son dos binarios distintos** y se informan por separado en Ajustes:
-convertir a MP4 y sacar portadas usan el primero, leer duraciones el segundo. Si
-instalaste ffmpeg con StudyMate abierto, "Volver a comprobar" lo detecta sin reiniciar.
+convertir a MP4 y sacar portadas usan el primero, leer duraciones el segundo.
+
+Si no aparecen, StudyMate no se queda esperando al PATH: los busca donde winget y los
+instaladores habituales los dejan (`WinGet\Links`, `WinGet\Packages`, `Archivos de
+programa\ffmpeg\bin`, `chocolatey\bin`, `C:\ffmpeg\bin`). Eso resuelve el caso típico
+de Windows: un programa lanzado desde el Explorador hereda el entorno de cuando el
+Explorador arrancó, así que ffmpeg recién instalado no aparece hasta cerrar sesión.
+
+Si aun así no lo encuentra, en Ajustes podés **indicar la carpeta a mano** — la que
+contiene `ffmpeg.exe` — y queda guardada.
 
 ## Tema
 

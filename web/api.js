@@ -41,6 +41,8 @@ export const api = {
 
   search:       (q) => request('GET', '/api/search?q=' + encodeURIComponent(q)),
   frameCover:   (id, lessonId) => request('POST', `/api/courses/${id}/cover/frame`, { lesson_id: lessonId ?? null }),
+  recheckTools: () => request('POST', '/api/tools/recheck'),
+  setFfmpegDir: (dir) => request('POST', '/api/tools/ffmpeg-dir', { dir }),
   durationStatus:() => request('GET', '/api/durations/status'),
   scanDurations:() => request('POST', '/api/durations/scan'),
 

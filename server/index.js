@@ -7,7 +7,8 @@ import express from 'express';
 import { db, COVERS_DIR, STATUSES, KINDS, getSetting, setSetting, progressFor, nextLessonFor } from './db.js';
 import { scanLibrary, scanCourse, registerCourse } from './scanner.js';
 import { resolveLessonFile, lessonWithCourse, openExternally, ffmpegAvailable, ffprobeAvailable,
-         probeTools, remuxLesson, mimeFor, probeDuration, extractFrame } from './media.js';
+         probeTools, forgetTools, FFMPEG_DIR_SETTING, remuxLesson, mimeFor,
+         probeDuration, extractFrame } from './media.js';
 import { monogram, cleanFolderTitle, COVER_COLORS } from './naming.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -481,6 +482,41 @@ app.delete('/api/modules/:id/reorder', wrap((req, res) => {
   const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(module.course_id);
   scanCourse(course);
   res.json({ ok: true });
+}));
+
+// ---------------------------------------------------------------- herramientas
+
+/** Vuelve a buscar ffmpeg y ffprobe desde cero, por si los instalaste recién. */
+app.post('/api/tools/recheck', wrap(async (req, res) => {
+  forgetTools();
+  res.json(await probeTools());
+}));
+
+/**
+ * Para cuando el PATH no alcanza: le decís en qué carpeta están y listo. Es la
+ * salida en una máquina donde no podés tocar variables de entorno.
+ */
+app.post('/api/tools/ffmpeg-dir', wrap(async (req, res) => {
+  const raw = String(req.body?.dir ?? '').trim().replace(/^"|"$/g, '');
+
+  if (!raw) {
+    setSetting(FFMPEG_DIR_SETTING, '');
+    forgetTools();
+    return res.json(await probeTools());
+  }
+
+  const abs = path.resolve(raw);
+  if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) {
+    return fail(res, 400, `No existe la carpeta ${abs}`);
+  }
+
+  setSetting(FFMPEG_DIR_SETTING, abs);
+  forgetTools();
+  const tools = await probeTools();
+  if (!tools.ffmpeg && !tools.ffprobe) {
+    return fail(res, 400, `En ${abs} no hay ni ffmpeg ni ffprobe. Suele ser la subcarpeta "bin".`);
+  }
+  res.json(tools);
 }));
 
 // ---------------------------------------------------------------- marcar en bloque

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, execFile } from 'node:child_process';
-import { db } from './db.js';
+import { db, getSetting } from './db.js';
 
 /**
  * Resuelve el archivo de una clase y verifica que siga dentro de la carpeta de su
@@ -45,32 +45,105 @@ export function openExternally(absPath) {
  * duraciones el segundo. Chequear solo uno hacía que un botón se habilitara para
  * después fallar en silencio.
  *
- * El resultado positivo se cachea; el negativo NO. Si instalás ffmpeg con la app
- * abierta, el próximo chequeo lo encuentra sin reiniciar nada.
+ * Tampoco alcanza con confiar en el PATH: en Windows, un programa lanzado desde el
+ * Explorador hereda el entorno de cuando el Explorador arrancó, así que ffmpeg
+ * recién instalado no aparece hasta cerrar sesión. Por eso, si el PATH falla,
+ * buscamos en los lugares donde winget y los instaladores habituales lo dejan.
  */
-const toolCache = { ffmpeg: false, ffprobe: false };
+export const FFMPEG_DIR_SETTING = 'ffmpeg_dir';
 
-function checkTool(name) {
-  if (toolCache[name]) return Promise.resolve({ ok: true });
-  return new Promise((resolve) => {
-    execFile(name, ['-version'], { timeout: 8000 }, (err) => {
-      if (!err) toolCache[name] = true;
-      resolve({ ok: !err, error: err ? (err.code === 'ENOENT' ? `No se encontró ${name} en el PATH.` : err.message) : null });
-    });
-  });
+const EXE = process.platform === 'win32' ? '.exe' : '';
+const resolved = { ffmpeg: null, ffprobe: null };
+
+function wingetPackageDirs() {
+  const base = process.env.LOCALAPPDATA
+    ? path.join(process.env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Packages')
+    : null;
+  if (!base) return [];
+  let entries = [];
+  try {
+    entries = fs.readdirSync(base, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  const out = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !/ffmpeg/i.test(entry.name)) continue;
+    const pkg = path.join(base, entry.name);
+    out.push(pkg, path.join(pkg, 'bin'));
+    // winget descomprime en una subcarpeta con la versión adentro del paquete
+    try {
+      for (const sub of fs.readdirSync(pkg, { withFileTypes: true })) {
+        if (sub.isDirectory()) out.push(path.join(pkg, sub.name), path.join(pkg, sub.name, 'bin'));
+      }
+    } catch { /* paquete ilegible */ }
+  }
+  return out;
+}
+
+function candidateDirs() {
+  const dirs = [];
+  const configured = getSetting(FFMPEG_DIR_SETTING);
+  if (configured) dirs.push(configured, path.join(configured, 'bin'));
+
+  if (process.platform === 'win32') {
+    const local = process.env.LOCALAPPDATA;
+    if (local) dirs.push(path.join(local, 'Microsoft', 'WinGet', 'Links'));
+    dirs.push(...wingetPackageDirs());
+    for (const root of [process.env.ProgramFiles, process.env['ProgramFiles(x86)']]) {
+      if (root) dirs.push(path.join(root, 'ffmpeg', 'bin'));
+    }
+    if (process.env.ProgramData) dirs.push(path.join(process.env.ProgramData, 'chocolatey', 'bin'));
+    dirs.push('C:\\ffmpeg\\bin');
+  } else {
+    dirs.push('/usr/bin', '/usr/local/bin', '/opt/homebrew/bin', '/snap/bin');
+  }
+  return dirs;
+}
+
+const runs = (command) => new Promise((resolve) => {
+  execFile(command, ['-version'], { timeout: 8000 }, (err) => resolve(!err));
+});
+
+/**
+ * Devuelve con qué comando invocar la herramienta: su nombre si el PATH alcanza, o
+ * la ruta completa si hubo que salir a buscarla. `null` si no está en ningún lado.
+ */
+export async function resolveTool(name) {
+  if (resolved[name] && (resolved[name] === name || fs.existsSync(resolved[name]))) {
+    return resolved[name];
+  }
+  if (await runs(name)) {
+    resolved[name] = name;
+    return name;
+  }
+  for (const dir of candidateDirs()) {
+    const full = path.join(dir, name + EXE);
+    if (!fs.existsSync(full)) continue;
+    if (await runs(full)) {
+      resolved[name] = full;
+      return full;
+    }
+  }
+  return null;
 }
 
 export async function probeTools() {
-  const [ffmpeg, ffprobe] = await Promise.all([checkTool('ffmpeg'), checkTool('ffprobe')]);
-  return { ffmpeg: ffmpeg.ok, ffprobe: ffprobe.ok, ffmpegError: ffmpeg.error, ffprobeError: ffprobe.error };
+  const [ffmpeg, ffprobe] = await Promise.all([resolveTool('ffmpeg'), resolveTool('ffprobe')]);
+  return {
+    ffmpeg: Boolean(ffmpeg), ffprobe: Boolean(ffprobe),
+    ffmpegPath: ffmpeg, ffprobePath: ffprobe,
+    ffmpegDir: getSetting(FFMPEG_DIR_SETTING) ?? null,
+  };
 }
 
-export async function ffmpegAvailable() {
-  return (await checkTool('ffmpeg')).ok;
-}
+export async function ffmpegAvailable() { return Boolean(await resolveTool('ffmpeg')); }
+export async function ffprobeAvailable() { return Boolean(await resolveTool('ffprobe')); }
 
-export async function ffprobeAvailable() {
-  return (await checkTool('ffprobe')).ok;
+/** Olvida lo encontrado, para que "Volver a comprobar" busque de nuevo de verdad. */
+export function forgetTools() {
+  resolved.ffmpeg = null;
+  resolved.ffprobe = null;
 }
 
 export const REMUX_DIR = '.studymate';
@@ -83,7 +156,7 @@ export const REMUX_DIR = '.studymate';
  * con dos clases duplicadas. El original nunca se toca.
  */
 export function remuxLesson(lesson, course) {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     const source = resolveLessonFile(lesson, course, { preferRemux: false });
     if (!source || !fs.existsSync(source)) {
       return resolve({ ok: false, error: 'El archivo original no está en el disco.' });
@@ -108,7 +181,9 @@ export function remuxLesson(lesson, course) {
       '-movflags', '+faststart',
       outAbs,
     ];
-    const proc = spawn('ffmpeg', args);
+    const cmd = await resolveTool('ffmpeg');
+    if (!cmd) return resolve({ ok: false, error: 'No se encontró ffmpeg.' });
+    const proc = spawn(cmd, args);
     let stderr = '';
     proc.stderr.on('data', (chunk) => { stderr += chunk.toString().slice(0, 2000); });
 
@@ -146,7 +221,9 @@ export function mimeFor(ext) {
 /** Duración en segundos según ffprobe, o null si no la puede leer. */
 export function probeDuration(absPath) {
   return new Promise((resolve) => {
-    execFile('ffprobe', [
+    resolveTool('ffprobe').then((cmd) => {
+    if (!cmd) return resolve({ seconds: null, error: 'No se encontró ffprobe.' });
+    execFile(cmd, [
       '-v', 'error',
       '-show_entries', 'format=duration',
       '-of', 'default=noprint_wrappers=1:nokey=1',
@@ -163,6 +240,7 @@ export function probeDuration(absPath) {
         ? resolve({ seconds })
         : resolve({ seconds: null, error: 'ffprobe no devolvió una duración para este archivo.' });
     });
+    });
   });
 }
 
@@ -172,9 +250,11 @@ export function probeDuration(absPath) {
  * diapositiva cualquiera.
  */
 export function extractFrame(absPath, outPath, durationSeconds) {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
+    const cmd = await resolveTool('ffmpeg');
+    if (!cmd) return resolve(false);
     const at = durationSeconds && durationSeconds > 20 ? durationSeconds * 0.12 : 1;
-    const proc = spawn('ffmpeg', [
+    const proc = spawn(cmd, [
       '-hide_banner', '-loglevel', 'error', '-y',
       '-ss', String(at.toFixed(2)),
       '-i', absPath,
