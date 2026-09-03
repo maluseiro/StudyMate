@@ -335,6 +335,19 @@ await step('panel de duraciones en Ajustes', async () => {
   const text = await page.locator('main').textContent();
   if (!text.includes('duración') && !text.includes('duraciones')) throw new Error('sin panel');
 });
+
+await step('Ajustes informa ffmpeg y ffprobe por separado', async () => {
+  // Son binarios distintos: convertir usa uno y leer duraciones el otro, así que
+  // hay que poder ver cuál falta.
+  const estado = await page.evaluate(() => fetch('/api/state').then((r) => r.json()));
+  if (typeof estado.ffmpeg !== 'boolean' || typeof estado.ffprobe !== 'boolean') {
+    throw new Error('el estado no informa los dos: ' + JSON.stringify({ f: estado.ffmpeg, p: estado.ffprobe }));
+  }
+  const text = await page.locator('main').textContent();
+  if (!text.includes('ffmpeg') || !text.includes('ffprobe')) {
+    throw new Error('Ajustes no nombra los dos binarios');
+  }
+});
 if (shots) await page.screenshot({ path: `${shots}/dark-3-ajustes.png`, fullPage: true });
 
 await step('portada desde un fotograma', async () => {

@@ -6,8 +6,8 @@ import express from 'express';
 
 import { db, COVERS_DIR, STATUSES, KINDS, getSetting, setSetting, progressFor, nextLessonFor } from './db.js';
 import { scanLibrary, scanCourse, registerCourse } from './scanner.js';
-import { resolveLessonFile, lessonWithCourse, openExternally, ffmpegAvailable, remuxLesson,
-         mimeFor, probeDuration, extractFrame } from './media.js';
+import { resolveLessonFile, lessonWithCourse, openExternally, ffmpegAvailable, ffprobeAvailable,
+         probeTools, remuxLesson, mimeFor, probeDuration, extractFrame } from './media.js';
 import { monogram, cleanFolderTitle, COVER_COLORS } from './naming.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -100,7 +100,7 @@ app.get('/api/state', wrap(async (req, res) => {
     totals,
     byStatus,
     lastScan: lastScan ? JSON.parse(lastScan) : null,
-    ffmpeg: await ffmpegAvailable(),
+    ...(await probeTools()),
     platform: process.platform,
     addresses: localAddresses(),
     coverColors: COVER_COLORS,
@@ -613,7 +613,10 @@ app.get('/api/search', wrap((req, res) => {
  * Sin ffprobe la duración solo se conoce al abrir la clase. Este trabajo la completa
  * de a poco en segundo plano; el cliente pregunta cómo viene.
  */
-const durationJob = { running: false, done: 0, total: 0, updated: 0, failed: 0, error: null };
+const durationJob = {
+  running: false, done: 0, total: 0, updated: 0, failed: 0,
+  error: null, lastFailure: null,
+};
 
 app.get('/api/durations/status', wrap((req, res) => {
   const pending = db.prepare(
@@ -624,8 +627,9 @@ app.get('/api/durations/status', wrap((req, res) => {
 
 app.post('/api/durations/scan', wrap(async (req, res) => {
   if (durationJob.running) return res.json({ ...durationJob, alreadyRunning: true });
-  if (!(await ffmpegAvailable())) {
-    return fail(res, 400, 'Hace falta ffmpeg (viene con ffprobe) para leer las duraciones.');
+  // Acá manda ffprobe, no ffmpeg: son binarios distintos y uno puede faltar.
+  if (!(await ffprobeAvailable())) {
+    return fail(res, 400, 'No se encontró ffprobe en el PATH. Viene con ffmpeg; si lo instalaste recién, cerrá y volvé a abrir StudyMate.');
   }
 
   const pending = db.prepare(`
@@ -634,7 +638,10 @@ app.post('/api/durations/scan', wrap(async (req, res) => {
     WHERE l.kind = 'video' AND l.missing = 0 AND l.duration IS NULL
   `).all();
 
-  Object.assign(durationJob, { running: true, done: 0, total: pending.length, updated: 0, failed: 0, error: null });
+  Object.assign(durationJob, {
+    running: true, done: 0, total: pending.length, updated: 0, failed: 0,
+    error: null, lastFailure: null,
+  });
   res.json({ ...durationJob, started: true });
 
   const save = db.prepare('UPDATE lessons SET duration = ? WHERE id = ?');
@@ -648,9 +655,17 @@ app.post('/api/durations/scan', wrap(async (req, res) => {
         { rel_path: item.rel_path, remux_rel: item.remux_rel },
         { path: item.course_path }
       );
-      const seconds = abs ? await probeDuration(abs) : null;
-      if (seconds) { save.run(seconds, item.id); durationJob.updated++; }
-      else durationJob.failed++;
+      const result = abs
+        ? await probeDuration(abs)
+        : { seconds: null, error: 'La ruta del archivo quedó fuera de la carpeta del curso.' };
+      if (result.seconds) {
+        save.run(result.seconds, item.id);
+        durationJob.updated++;
+      } else {
+        durationJob.failed++;
+        // Guardamos el primero: repetir el mismo error mil veces no aporta.
+        durationJob.lastFailure ??= result.error;
+      }
       durationJob.done++;
     }
   };

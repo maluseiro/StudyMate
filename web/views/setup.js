@@ -203,12 +203,16 @@ function durationsPanel(ctx) {
   let timer = null;
   const stopPolling = () => { clearInterval(timer); timer = null; };
 
+  const detail = h('div', { class: 'note-box note-bad hidden' });
+
   const paint = (state) => {
     if (state.running) {
       progress.classList.remove('hidden');
+      detail.classList.add('hidden');
       const pct = state.total ? Math.round((state.done / state.total) * 100) : 0;
       bar.style.width = `${pct}%`;
-      label.textContent = `Leyendo ${state.done} de ${state.total}…`;
+      label.textContent = `Leyendo ${state.done} de ${state.total}…`
+        + (state.failed ? ` · ${state.failed} sin poder leer` : '');
       button.disabled = true;
       button.replaceChildren(icon('clock', 15), 'Calculando…');
       return;
@@ -216,14 +220,26 @@ function durationsPanel(ctx) {
     stopPolling();
     progress.classList.add('hidden');
     button.replaceChildren(icon('clock', 15), 'Calcular duraciones');
-    button.disabled = state.pending === 0 || !ctx.state.ffmpeg;
-    if (!ctx.state.ffmpeg) {
-      label.textContent = 'Hace falta ffmpeg para leer las duraciones sin abrir cada clase.';
+    // Las duraciones las lee ffprobe, no ffmpeg: son binarios distintos.
+    button.disabled = state.pending === 0 || !ctx.state.ffprobe;
+
+    if (!ctx.state.ffprobe) {
+      label.textContent = 'Hace falta ffprobe (viene con ffmpeg) para leer las duraciones sin abrir cada clase.';
     } else if (state.pending === 0) {
       label.textContent = 'Todas las clases tienen su duración.';
     } else {
       label.textContent = `${state.pending} ${state.pending === 1 ? 'clase' : 'clases'} sin duración. `
         + 'Hasta calcularlas, "cuánto le falta" aparece vacío.';
+    }
+
+    // Si el trabajo corrió y falló, hay que decir por qué: antes mostraba el mismo
+    // mensaje que si no hubiera nada pendiente.
+    if (state.failed && state.lastFailure) {
+      detail.replaceChildren(
+        h('span', { style: { fontWeight: 600 } },
+          `${state.failed} ${state.failed === 1 ? 'clase no se pudo leer' : 'clases no se pudieron leer'}`),
+        h('span', { class: 'mono', style: { fontSize: '12px' } }, state.lastFailure));
+      detail.classList.remove('hidden');
     }
   };
 
@@ -250,7 +266,8 @@ function durationsPanel(ctx) {
     h('div', { style: { display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' } },
       h('div', { class: 'grow', style: { minWidth: '260px' } }, label),
       button),
-    progress);
+    progress,
+    detail);
 }
 
 export function renderSetup(ctx, { asSettings = false } = {}) {
@@ -329,13 +346,33 @@ export function renderSetup(ctx, { asSettings = false } = {}) {
       h('h2', { style: { marginTop: '10px' } }, 'Duraciones'),
       durationsPanel(ctx),
       h('h2', { style: { marginTop: '10px' } }, 'Sistema'),
-      h('div', { class: s.ffmpeg ? 'note-box note-ok' : 'note-box note-warn' },
+      // Dos binarios, dos filas: uno puede estar y el otro no.
+      ...[
+        { ok: s.ffmpeg, name: 'ffmpeg', para: 'Convertir a MP4 las clases en .mkv, .ts o .avi, y sacar portadas de un fotograma.' },
+        { ok: s.ffprobe, name: 'ffprobe', para: 'Leer la duración de cada clase sin tener que abrirla.' },
+      ].map((t) => h('div', { class: t.ok ? 'note-box note-ok' : 'note-box note-warn' },
         h('div', { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
-          icon(s.ffmpeg ? 'check' : 'warning', 16, { width: 2.2 }),
-          h('span', { style: { fontWeight: 600 } }, s.ffmpeg ? 'ffmpeg disponible' : 'ffmpeg no encontrado')),
-        h('span', {}, s.ffmpeg
-          ? 'Las clases en .mkv, .ts o .avi se pueden convertir a MP4 sin perder calidad desde la propia clase.'
-          : 'Sin ffmpeg, las clases en .mkv, .ts o .avi solo se pueden abrir con un reproductor externo. Instalalo y agregalo al PATH para poder convertirlas.')),
+          icon(t.ok ? 'check' : 'warning', 16, { width: 2.2 }),
+          h('span', { class: 'mono', style: { fontWeight: 600 } }, t.name),
+          h('span', { style: { fontWeight: 600 } }, t.ok ? 'disponible' : 'no encontrado en el PATH')),
+        h('span', {}, t.para))),
+
+      !(s.ffmpeg && s.ffprobe)
+        ? h('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' } },
+            h('span', { class: 'muted', style: { fontSize: '13px' } },
+              'Si lo instalaste con StudyMate abierto, el programa todavía no ve el PATH nuevo.'),
+            h('button', {
+              class: 'btn',
+              onclick: async (e) => {
+                const button = e.currentTarget;
+                button.disabled = true;
+                await ctx.refreshState();
+                const ahora = ctx.state.ffmpeg && ctx.state.ffprobe;
+                toast(ahora ? 'Encontrados' : 'Sigue sin encontrarlos', ahora ? 'ok' : 'bad');
+                render();
+              },
+            }, icon('refresh', 15, { width: 1.9 }), 'Volver a comprobar'))
+        : null,
       s.addresses.length ? h('div', { class: 'note-box', style: { background: 'var(--surface)', border: '1px solid var(--line)' } },
         h('span', { style: { fontWeight: 600 } }, 'Desde el celular, en la misma red WiFi:'),
         ...s.addresses.map((ip) => h('span', { class: 'mono' }, `http://${ip}:${location.port || 4173}`))) : null,

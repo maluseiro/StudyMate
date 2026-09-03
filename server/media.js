@@ -40,17 +40,37 @@ export function openExternally(absPath) {
   }
 }
 
-let ffmpegCache = null;
+/**
+ * ffmpeg y ffprobe son binarios distintos: convertir usa el primero y leer
+ * duraciones el segundo. Chequear solo uno hacía que un botón se habilitara para
+ * después fallar en silencio.
+ *
+ * El resultado positivo se cachea; el negativo NO. Si instalás ffmpeg con la app
+ * abierta, el próximo chequeo lo encuentra sin reiniciar nada.
+ */
+const toolCache = { ffmpeg: false, ffprobe: false };
 
-/** ¿Hay ffmpeg disponible? Se consulta una vez por arranque. */
-export function ffmpegAvailable() {
-  if (ffmpegCache !== null) return Promise.resolve(ffmpegCache);
+function checkTool(name) {
+  if (toolCache[name]) return Promise.resolve({ ok: true });
   return new Promise((resolve) => {
-    execFile('ffmpeg', ['-version'], (err) => {
-      ffmpegCache = !err;
-      resolve(ffmpegCache);
+    execFile(name, ['-version'], { timeout: 8000 }, (err) => {
+      if (!err) toolCache[name] = true;
+      resolve({ ok: !err, error: err ? (err.code === 'ENOENT' ? `No se encontró ${name} en el PATH.` : err.message) : null });
     });
   });
+}
+
+export async function probeTools() {
+  const [ffmpeg, ffprobe] = await Promise.all([checkTool('ffmpeg'), checkTool('ffprobe')]);
+  return { ffmpeg: ffmpeg.ok, ffprobe: ffprobe.ok, ffmpegError: ffmpeg.error, ffprobeError: ffprobe.error };
+}
+
+export async function ffmpegAvailable() {
+  return (await checkTool('ffmpeg')).ok;
+}
+
+export async function ffprobeAvailable() {
+  return (await checkTool('ffprobe')).ok;
 }
 
 export const REMUX_DIR = '.studymate';
@@ -131,10 +151,17 @@ export function probeDuration(absPath) {
       '-show_entries', 'format=duration',
       '-of', 'default=noprint_wrappers=1:nokey=1',
       absPath,
-    ], { timeout: 20_000 }, (err, stdout) => {
-      if (err) return resolve(null);
+    ], { timeout: 20_000 }, (err, stdout, stderr) => {
+      if (err) {
+        const detalle = err.code === 'ENOENT'
+          ? 'No se encontró ffprobe en el PATH.'
+          : (String(stderr || '').trim().split('\n').pop() || err.message);
+        return resolve({ seconds: null, error: detalle });
+      }
       const seconds = Number.parseFloat(String(stdout).trim());
-      resolve(Number.isFinite(seconds) && seconds > 0 ? seconds : null);
+      return Number.isFinite(seconds) && seconds > 0
+        ? resolve({ seconds })
+        : resolve({ seconds: null, error: 'ffprobe no devolvió una duración para este archivo.' });
     });
   });
 }

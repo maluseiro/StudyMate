@@ -116,6 +116,10 @@ iniciales. Se puede reemplazar por una imagen propia, o por **un fotograma del v
 Sin ffprobe, la duración de una clase solo se conoce al abrirla. En **Ajustes**,
 "Calcular duraciones" las completa todas de una pasada, con barra de avance.
 
+**ffmpeg y ffprobe son dos binarios distintos** y se informan por separado en Ajustes:
+convertir a MP4 y sacar portadas usan el primero, leer duraciones el segundo. Si
+instalaste ffmpeg con StudyMate abierto, "Volver a comprobar" lo detecta sin reiniciar.
+
 ## Tema
 
 Claro, oscuro, o **Auto** para seguir al sistema. El botón de la barra superior cicla
